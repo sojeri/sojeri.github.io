@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type="text/css">
+      :root {
+        --primary-background: light-dark(white, black);
+        --tertiary: light-dark(lightgrey, #323);
+        --award-accent: light-dark(lightgoldenrodyellow, #320);
+        --education-accent: light-dark(lightcyan, #024);
+        --position-accent: light-dark(lavender, #223);
+        --project-accent: light-dark(mintcream, #022);
+        --accent-foreground: light-dark(black, white);
+        --primary-button: light-dark(#bfd, #236);
+        --secondary-button: light-dark(#dfb, #054);
+      }
+      html {
+        color-scheme: light dark;
+        background: var(--primary-background);
+      }
+      html:has(#color-scheme [value="light"]:checked) {
+        color-scheme: light;
+      }
+      html:has(#color-scheme [value="dark"]:checked) {
+        color-scheme: dark;
+      }
+      body {
+        font-family: sans-serif;
+        display: flex;
+        flex-flow: row nowrap;
+      }
+      body, ul, h4, p {
+        margin: 0;
+        padding: 0;
+      }
+      body, h1 {
+        width: 100%;
+      }
+      main {
+        width: calc(100% - 1rem);
+      }
+      #line {
+        border-left: 1px solid var(--tertiary);
+        margin-left: 1.5rem;
+        margin-right: -1rem;
+      }
+      h1 {
+        text-align: center;
+      }
+      h4 {
+        margin-bottom: 1rem;
+      }
+      a {
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      figure, .intro {
+        margin: 1.5rem 1rem 0 3rem;
+      }
+      figure:last-of-type {
+        margin-bottom: 1rem;
+      }
+      .intro {
+        text-align: justify;
+      }
+      .switcher {
+        text-align: center;
+      }
+      figure {
+        border: 1px solid var(--tertiary);
+        padding-bottom: 1rem;
+      }
+      figure > * {
+        padding: 0 1rem;
+      }
+      figure small {
+        font-weight: normal;
+      }
+      figure li {
+        list-style-type: none;
+      }
+      figure::before {
+        width: 2rem;
+        height: 2rem;
+        line-height: 2rem;
+        border-radius: 50%;
+        position: absolute;
+        margin-left: -3rem;
+        text-align: center;
+      }
+      .award::before {
+        content: "🏆";
+        background: var(--award-accent);
+      }
+      .education::before {
+        content: "🎓";
+        background: var(--education-accent);
+      }
+      .position::before {
+        content: "💼";
+        line-height: 1.8rem;
+        background: var(--position-accent)
+      }
+      .project::before {
+        content: "🎨";
+        background: var(--project-accent);
+      }
+      figcaption {
+        border-bottom: 1px solid var(--tertiary);
+        color: var(--accent-foreground);
+        padding-top: 0.4rem;
+        padding-bottom: 0.4rem;
+        margin-bottom: 0.5rem;
+      }
+      .medium {
+        grid-row: span 2;
+      }
+      .large {
+        grid-row: span 3;
+      }
+      .education figcaption {
+        background: var(--education-accent);
+      }
+      .position figcaption {
+        background: var(--position-accent);
+      }
+      .award figcaption {
+        background: var(--award-accent);
+      }
+      .project figcaption {
+        background: var(--project-accent);
+      }
+      figcaption > ul {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        padding: 0;
+        margin: 0;
+      }
+      .skills, .wrapper ul {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 0.8rem;
+      }
+      .skills li, .project a {
+        display: block;
+        background: var(--primary-button);
+        color: var(--accent-foreground);
+        padding: 0.4rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+      }
+      .project a {
+        background: var(--secondary-button);
+      }
+      .wrapper, .wrapper-col {
+        display: flex;
+        gap: 1rem;
+      }
+      .wrapper {
+        flex-flow: row nowrap;
+        align-items: center;
+      }
+      .wrapper-col {
+        flex-flow: column nowrap;
+      }
+      code {
+        background: #eee;
+      }
+      .padded {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+      }
+      @media (max-width: 500px) {
+        .wrapper {
+          flex-flow: row wrap;
+        }
+        figcaption > ul {
+          flex-direction: column;
+        }
+      }
+      @media (max-width: 400px) {
+        .wrapper {
+          justify-content: start;
+        }
+        img {
+          transform: scale(70%);
+        }
+      }
+      @media (max-width: 350px) {
+        img {
+          transform: scale(50%);
+        }
+      }
+    </style>
+    <title>🐍 Jeri Sommers | Senior Software Engineer @ Abridge AI</title>
+  </head>
+  <body>
+    <div id="line"></div>
+    <main>
+      <h1>Jeri Sommers 🐍</h1>
+      <p class="intro switcher">
+        <label for="color-scheme">Color scheme:</label>
+        <select id="color-scheme">
+          <option value="auto">Auto</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+      </p>
+      <p class="intro">
+        I made this because I missed the fun parts of having a <a href="https://stackoverflow.blog/2016/10/11/bye-bye-bullets-the-stack-overflow-developer-story-is-the-new-technical-resume/">StackOverflow Developer Story</a>.
+        If you were hoping for a full resume, you may be disappointed.
+        Feel free to <a href="https://www.linkedin.com/in/sojeri/">reach out to me on linkedin</a> to request a resume if that's why you were here.
+        <a href="https://www.github.com/sojeri/">Obligatory github link</a>.
+        You can also <a href="https://sojeri.github.io/">go back to my landing page</a>.
+      </p>
+      <figure class="position">
+        <figcaption>
+          <ul>
+            <li>Position</li>
+            <li>August 2024 - Present</li>
+          </ul>
+        </figcaption>
+        <h4>
+            Senior Software Engineer at Abridge<br />
+            <small>Healthtech medical scribe startup, 100-300 employees</small>
+        </h4>
+        <ul class="skills">
+          <li>google cloud platform (GCP)</li>
+          <li>typescript</li>
+          <li>javascript</li>
+          <li>nextjs</li>
+          <li>nestjs</li>
+          <li>reactjs</li>
+          <li>terraform</li>
+          <li>temporal</li>
+          <li>python</li>
+          <li>electronic health records (EHR)</li>
+          <li>EHR integrations</li>
+          <li>epic systems</li>
+        </ul>
+      </figure>
+      <figure class="position">
+        <figcaption>
+          <ul>
+            <li>Position</li>
+            <li>June 2021 - March 2024</li>
+          </ul>
+        </figcaption>
+        <h4>
+          Software Engineer at Spotify<br />
+          <small>Music/media streaming company, 8-10k employees</small>
+        </h4>
+        <ul class="skills">
+          <li>google cloud platform (GCP)</li>
+          <li>typescript</li>
+          <li>javascript</li>
+          <li>nextjs</li>
+          <li>reactjs</li>
+          <li>lottie</li>
+          <li>responsive web design</li>
+          <li>accessibility</li>
+          <li>java</li>
+          <li>deleting PHP</li>
+          <li>backstage</li>
+        </ul>
+      </figure>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>January 2019 - Present</li>
+          </ul>
+        </figcaption>
+        <h4>Cloud Technology 102</h4>
+        <div class="wrapper">
+          <div class="wrapper-col">
+            <ul>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle/">How's the weather, Seattle?</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=111-0032&country=jp&units=metric">Tokyo, Japan</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=10117&country=de&units=metric">Berlin, Germany</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=T2H&country=ca&units=metric">Calgary, Canada</a></li>
+              <li><a href="https://github.com/sojeri/howsTheWeatherSeattle">View source</a></li>
+            </ul>
+            <p>
+              Inspired by the 100 days of CSS challenge -- specifically, inspired by day 9 -- I wanted to make a little widget that shows the current state of Seattle's weather.
+              Note that you will always get the Seattle skyline but aren't actually stuck with our weather.
+              Optimized for a 400x400 display.
+            </p>
+          </div>
+          <img
+            alt="screenshot of weather widget showing cloudy weather at night. a few stars are visible over a simple cityscape which includes the great wheel, smith tower, columbia center, and a few other less distinct buildings."
+            src="../img/cloud-technology-102.png"
+            width="200"
+            height="200"
+          />
+        </div>
+      </figure>
+      <figure class="position">
+        <figcaption>
+          <ul>
+            <li>Position</li>
+            <li>February 2019 - March 2021</li>
+          </ul>
+        </figcaption>
+        <h4>
+          Software Engineer III at TrussWorks<br />
+          <small>Govtech consulting firm, 50-150 employees        </small>
+        </h4>
+        <ul class="skills">
+          <li>typescript</li>
+          <li>javascript</li>
+          <li>reactjs</li>
+          <li>python</li>
+          <li>terraform</li>
+          <li>amazon web services (AWS)</li>
+          <li>AWS step functions</li>
+          <li>golang</li>
+          <li>accessibility</li>
+        </ul>
+      </figure>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>September 2018</li>
+          </ul>
+        </figcaption>
+        <h4>Cloud Technology 101</h4>
+        <div class="wrapper">
+          <img
+            alt="someone holding a lightning storm cloud umbrella art piece with a few string lights hanging down past the umbrella handle"
+            src="../img/cloud-technology-101.jpg"
+            width="210"
+            height="200"
+          />
+          <p>
+            Absolutely destroyed an umbrella and several paper lanterns to make the
+            most epic lightning cloud costume for Luminata, a local light up arts festival run by the Fremont Arts
+            Council.
+          </p>
+        </div>
+      </figure>
+      <figure class="award">
+        <figcaption>
+          <ul>
+            <li>Award</li>
+            <li>May 2017</li>
+          </ul>
+        </figcaption>
+        <h4>US Patent (Microsoft)</h4>
+        <p>
+          Developed a feature that surfaced the most important next calendar event at the top of a
+          user's email inbox, saving time for millions of daily active users by reducing the need to navigate away
+          from OWA Mail module by 5%. (Filed May 2017, published Nov 2018, granted June 2020, based on my apprenticeship project.)
+        </p>
+      </figure>
+      <figure class="position">
+        <figcaption>
+          <ul>
+            <li>Position</li>
+            <li>December 2015 - June 2018</li>
+          </ul>
+        </figcaption>
+        <h4>
+          Software Engineer II at Microsoft<br />
+          <small>Enterprise hardware, software, & acquisitions company, 200-220k employees</small>
+        </h4>
+        <ul class="skills">
+          <li>typescript</li>
+          <li>javascript</li>
+          <li>reactjs</li>
+          <li>responsive web design</li>
+          <li>css</li>
+          <li>microsoft outlook</li>
+          <li>accessibility</li>
+          <li>c#</li>
+          <li>powershell</li>
+          <li>microsoft exchange server</li>
+        </ul>
+      </figure>
+      <figure class="education">
+        <figcaption>
+          <ul>
+            <li>Education</li>
+            <li>May 2015 - April 2016</li>
+          </ul>
+        </figcaption>
+        <h4>Full Stack Software Engineering at Ada Developers Academy</h4>
+        <div class="wrapper-col">
+          <ul class="skills">
+            <li>ruby</li>
+            <li>javascript</li>
+            <li>rails</li>
+            <li>git</li>
+            <li>html</li>
+            <li>css</li>
+          </ul>
+          <p>
+            Intensive software engineering training covering Ruby/Rails, JavaScript, Node.js, Git, RESTful API creation and
+            consumption, SQL, Postgres, HTML5, CSS, Agile methodologies, localization, accessibility, encryption, design
+            patterns, algorithms, hardware basics, inclusive culture building, bias recognition, and combating, social
+            justice, and allyship. 40+ hours per week, 7 months in the classroom, 5 months in apprenticeship (Microsoft).
+          </p>
+        </div>
+      </figure>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>April 2015</li>
+          </ul>
+        </figcaption>
+        <h4>Solar system model</h4>
+        <div class="wrapper-col">
+          <div class="wrapper">
+            <ul>
+              <li><a href="https://sojeri.github.io/solarSystem/">Jump into space</a></li>
+              <li><a href="https://github.com/sojeri/sojeri.github.io/tree/master/solarSystem">View source</a></li>
+            </ul>
+            <img
+              alt="screenshot of the solar system -- some colorful circles over a black background"
+              src="../img/solarSystem.png"
+              width="300"
+              height="140"
+            />
+          </div>
+          <p>
+            The very first Ada assignment -- given before we even started.
+            I went a little overboard, drawing up the base solar system including many of the larger moons.
+          </p>
+        </div>
+      </figure>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>March 2015</li>
+          </ul>
+        </figcaption>
+        <h4>First Ever Coding Project: Set Clone</h4>
+        <div class="wrapper">
+          <img
+            alt="screenshot of set clone UX showing several cards and a few UI buttons"
+            src="https://raw.githubusercontent.com/sojeri/sojeri.github.io/refs/heads/master/img/setClone.png"
+            width="300"
+            height="100"
+          />
+          <div class="wrapper-col">
+            <ul>
+              <li><a href="https://sojeri.github.io/setGame/">Try it out</a></li>
+              <li><a href="https://github.com/sojeri/setGame">View source</a></li>
+            </ul>
+            <p>
+              My first ever coding project! Built during my downtime between calls while working in a call center.
+              It's a more color-blind-friendly version of the Set game.
+              You can spam the hint button to auto play the entire game.
+              View source to see my MS Excel-inspired deeply nested if statement-based code 😂
+            </p>
+          </div>
+        </div>
+      </figure>
+    </main>
+  </body>
+</html>

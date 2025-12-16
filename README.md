@@ -6,6 +6,10 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__12/2025:__
+- added nostalgic developer story, inspired by the original stack overflow feature
+- added link to developer story on landing page
+
 __2/2023:__
 - tweaked solar system start positions to improve first view (all in a line was weird)
 - added some project links beyond the initial scroll window. now if people wander they can see some historical content that still makes me happy.
