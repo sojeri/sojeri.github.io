@@ -67,7 +67,9 @@
         text-align: justify;
       }
       .switcher {
-        text-align: center;
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: space-evenly;
       }
       figure {
         border: 1px solid var(--tertiary);
@@ -95,6 +97,12 @@
         content: "🏆";
         background: var(--award-accent);
       }
+      .car::before {
+        content: "🚙";
+      }
+      .rage::before {
+        content: "😡";
+      }
       .education::before {
         content: "🎓";
         background: var(--education-accent);
@@ -108,6 +116,10 @@
         content: "🎨";
         background: var(--project-accent);
       }
+      .title-change::before {
+        content: "⚡";
+        background: var(--position-accent);
+      }
       figcaption {
         border-bottom: 1px solid var(--tertiary);
         color: var(--accent-foreground);
@@ -115,11 +127,12 @@
         padding-bottom: 0.4rem;
         margin-bottom: 0.5rem;
       }
-      .medium {
-        grid-row: span 2;
+      .title-change {
+        padding-bottom: 0;
       }
-      .large {
-        grid-row: span 3;
+      .title-change figcaption {
+        background: var(--position-accent);
+        margin-bottom: 0;
       }
       .education figcaption {
         background: var(--education-accent);
@@ -145,7 +158,7 @@
         flex-flow: row wrap;
         gap: 0.8rem;
       }
-      .skills li, .project a {
+      .skills li, figure a {
         display: block;
         background: var(--primary-button);
         color: var(--accent-foreground);
@@ -154,7 +167,7 @@
         text-align: center;
         font-size: 0.8rem;
       }
-      .project a {
+      figure a {
         background: var(--secondary-button);
       }
       .wrapper, .wrapper-col {
@@ -203,14 +216,16 @@
     <div id="line"></div>
     <main>
       <h1>Jeri Sommers 🐍</h1>
-      <p class="intro switcher">
-        <label for="color-scheme">Color scheme:</label>
-        <select id="color-scheme">
-          <option value="auto">Auto</option>
-          <option value="light">Light</option>
-          <option value="dark">Dark</option>
-        </select>
-      </p>
+      <div class="intro switcher">
+        <span>
+          <label for="color-scheme">Color scheme:</label>
+          <select id="color-scheme">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </span>
+      </div>
       <p class="intro">
         I made this because I missed the fun parts of having a <a href="https://stackoverflow.blog/2016/10/11/bye-bye-bullets-the-stack-overflow-developer-story-is-the-new-technical-resume/">StackOverflow Developer Story</a>.
         If you were hoping for a full resume, you may be disappointed.
@@ -244,6 +259,17 @@
           <li>epic systems</li>
         </ul>
       </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Senior Software Engineer</strong>
+              (Abridge)
+            </li>
+            <li>August 2024</li>
+          </ul>
+        </figcaption>
+      </figure>
       <figure class="position">
         <figcaption>
           <ul>
@@ -269,36 +295,16 @@
           <li>backstage</li>
         </ul>
       </figure>
-      <figure class="project">
+      <figure class="title-change">
         <figcaption>
           <ul>
-            <li>Project</li>
-            <li>January 2019 - Present</li>
+            <li>
+              <strong>Software Engineer</strong>
+              (Spotify)
+            </li>
+            <li>June 2021</li>
           </ul>
         </figcaption>
-        <h4>Cloud Technology 102</h4>
-        <div class="wrapper">
-          <div class="wrapper-col">
-            <ul>
-              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle/">How's the weather, Seattle?</a></li>
-              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=111-0032&country=jp&units=metric">Tokyo, Japan</a></li>
-              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=10117&country=de&units=metric">Berlin, Germany</a></li>
-              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=T2H&country=ca&units=metric">Calgary, Canada</a></li>
-              <li><a href="https://github.com/sojeri/howsTheWeatherSeattle">View source</a></li>
-            </ul>
-            <p>
-              Inspired by the 100 days of CSS challenge -- specifically, inspired by day 9 -- I wanted to make a little widget that shows the current state of Seattle's weather.
-              Note that you will always get the Seattle skyline but aren't actually stuck with our weather.
-              Optimized for a 400x400 display.
-            </p>
-          </div>
-          <img
-            alt="screenshot of weather widget showing cloudy weather at night. a few stars are visible over a simple cityscape which includes the great wheel, smith tower, columbia center, and a few other less distinct buildings."
-            src="../img/cloud-technology-102.png"
-            width="200"
-            height="200"
-          />
-        </div>
       </figure>
       <figure class="position">
         <figcaption>
@@ -323,6 +329,57 @@
           <li>accessibility</li>
         </ul>
       </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Software Engineer III</strong>
+              (TrussWorks)
+            </li>
+            <li>February 2019</li>
+          </ul>
+        </figcaption>
+      </figure>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>January 2019 - Present</li>
+          </ul>
+        </figcaption>
+        <h4>Cloud Technology 102</h4>
+        <div class="wrapper">
+          <div class="wrapper-col">
+            <ul>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle/">How's the weather, Seattle?</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=111-0032&country=jp&units=metric">Tokyo, Japan</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=10117&country=de&units=metric">Berlin, Germany</a></li>
+              <li><a href="https://sojeri.github.io/howsTheWeatherSeattle?zip=T2H&country=ca&units=metric">Calgary, Canada</a></li>
+              <li><a href="https://github.com/sojeri/howsTheWeatherSeattle">View source</a></li>
+            </ul>
+            <p>
+              Hobby project inspired by the 100 days of CSS challenge -- specifically, inspired by day 9.
+              I wanted to make a little widget that shows the current state of Seattle's weather.
+              Note that you will always get the Seattle skyline but aren't actually stuck with our weather.
+              Optimized for a 400x400 display.
+            </p>
+          </div>
+          <img
+            alt="screenshot of weather widget showing cloudy weather at night. a few stars are visible over a simple cityscape which includes the great wheel, smith tower, columbia center, and a few other less distinct buildings."
+            src="../img/cloud-technology-102.png"
+            width="200"
+            height="200"
+          />
+        </div>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li><strong>Cycling Enthusiast Accused Of Not Even Wanting A Job</strong></li>
+            <li>November 2018</li>
+          </ul>
+        </figcaption>
+      </figure>
       <figure class="project">
         <figcaption>
           <ul>
@@ -345,10 +402,29 @@
           </p>
         </div>
       </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li><strong>Unemployed Wastrel</strong>, redux</li>
+            <li>June 2018</li>
+          </ul>
+        </figcaption>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Software Engineer II</strong>
+              (Microsoft)
+            </li>
+            <li>May 2017</li>
+          </ul>
+        </figcaption>
+      </figure>
       <figure class="award">
         <figcaption>
           <ul>
-            <li>Award</li>
+            <li>Achievement</li>
             <li>May 2017</li>
           </ul>
         </figcaption>
@@ -358,6 +434,51 @@
           user's email inbox, saving time for millions of daily active users by reducing the need to navigate away
           from OWA Mail module by 5%. (Filed May 2017, published Nov 2018, granted June 2020, based on my apprenticeship project.)
         </p>
+      </figure>
+      <figure class="position">
+        <figcaption>
+          <ul>
+            <li>Position</li>
+            <li>September 2016 - April 2017</li>
+          </ul>
+        </figcaption>
+        <h4>
+          Extension Lecturer aka Glorified TA at UW PCE<br />
+          <small>University of Washington's Professional & Continuing Education's Responsive Web Design series, 20-45 students</small>
+        </h4>
+        <ul class="skills">
+          <li>coaching</li>
+          <li>debugging</li>
+          <li>javascript</li>
+          <li>html</li>
+          <li>css</li>
+          <li>basic computer literacy</li>
+          <li>git</li>
+          <li>pair programming</li>
+          <li>web design</li>
+        </ul>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Part Time Tutor</strong>
+              (UW PCE)
+            </li>
+            <li>September 2016</li>
+          </ul>
+        </figcaption>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Software Engineer I</strong>
+              (Microsoft)
+            </li>
+            <li>April 2016</li>
+          </ul>
+        </figcaption>
       </figure>
       <figure class="position">
         <figcaption>
@@ -382,6 +503,17 @@
           <li>powershell</li>
           <li>microsoft exchange server</li>
         </ul>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Software Engineering Apprentice</strong>
+              (Microsoft + Ada)
+            </li>
+            <li>December 2015</li>
+          </ul>
+        </figcaption>
       </figure>
       <figure class="education">
         <figcaption>
@@ -435,6 +567,14 @@
           </p>
         </div>
       </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li><strong>Software Engineering Student!! 😭</strong></li>
+            <li>April 2015</li>
+          </ul>
+        </figcaption>
+      </figure>
       <figure class="project">
         <figcaption>
           <ul>
@@ -442,7 +582,7 @@
             <li>March 2015</li>
           </ul>
         </figcaption>
-        <h4>First Ever Coding Project: Set Clone</h4>
+        <h4>First ever coding project: Set clone</h4>
         <div class="wrapper">
           <img
             alt="screenshot of set clone UX showing several cards and a few UI buttons"
@@ -463,6 +603,66 @@
             </p>
           </div>
         </div>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li>
+              <strong>Assistant Manager</strong>
+              (Delivery Call Center)
+            </li>
+            <li>2014</li>
+          </ul>
+        </figcaption>
+      </figure>
+      <figure class="award car">
+        <figcaption>
+          <ul>
+            <li>Achievement</li>
+            <li>2012 - 2013</li>
+          </ul>
+        </figcaption>
+        <h4>Hitchhiked over 1300 km across Europe and Turkey</h4>
+        <div class="wrapper">
+          <div class="wrapper-col">
+            <ul>
+              <li><a href="https://www.google.com/maps/d/edit?mid=ziRDowfESTU4.kYjAmM72MhX4">See where I went</a></li>
+            </ul>
+            <p>
+              While bouncing around between different volunteer roles at animal rescue centers, farms, and hostels, hitchhiked over 1,300 kilometers.
+              Fethiye, Turkey and Berlin, Germany were my favorite locations by far -- not for hitchhiking, just for the people and sights and food.
+            </p>
+          </div>
+        </div>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li><strong>Unemployed Wastrel</strong></li>
+            <li>2012</li>
+          </ul>
+        </figcaption>
+      </figure>
+      <figure class="award rage">
+        <figcaption>
+          <ul>
+            <li>Achievement</li>
+            <li>2012</li>
+          </ul>
+        </figcaption>
+        <h4>Rage quit the restaurant industry :)</h4>
+        <p>
+          After several very enjoyable years of getting paid to listen to music while driving, I eventually became a restaurant manager.
+          Management wasn't the same lovely low responsibility gig with flexible hours, and I eventually burned out and rage quit the whole industry.
+        </p>
+      </figure>
+      <figure class="title-change">
+        <figcaption>
+          <ul>
+            <li><strong>Restaurant General Manager 🍕</strong></li>
+            <li>Pre 2012</li>
+          </ul>
+        </figcaption>
       </figure>
     </main>
   </body>
