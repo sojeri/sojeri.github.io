@@ -6,6 +6,10 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__2/2026:__
+- added links back to my uncooltoast meditation / bell timer app
+- added missing metadata to all pages
+
 __12/2025:__
 - added nostalgic developer story, inspired by the original stack overflow feature
 - added link to developer story on landing page
