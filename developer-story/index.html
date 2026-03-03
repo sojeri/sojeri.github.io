@@ -6,6 +6,7 @@
     <style type="text/css">
       :root {
         --primary-background: light-dark(white, black);
+        --secondary-background: light-dark(rgba(224, 255, 255, 0.4), rgba(0, 34, 68, 0.4));
         --tertiary: light-dark(lightgrey, #323);
         --award-accent: light-dark(lightgoldenrodyellow, #320);
         --education-accent: light-dark(lightcyan, #024);
@@ -29,6 +30,7 @@
         font-family: sans-serif;
         display: flex;
         flex-flow: row nowrap;
+        justify-content: center;
       }
       body, ul, h4, p {
         margin: 0;
@@ -39,11 +41,34 @@
       }
       main {
         width: calc(100% - 1rem);
+        max-width: 800px;
       }
       #line {
         border-left: 1px solid var(--tertiary);
         margin-left: 1.5rem;
         margin-right: -1rem;
+      }
+      nav  {
+        display: flex;
+        flex-flow: row nowrap;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        justify-content: space-around;
+        text-align: center;
+        gap: 1rem;
+        padding: 0.4rem 1rem;
+        background: var(--secondary-background);
+        backdrop-filter: blur(4px);
+        font-family: sans-serif;
+        font-weight: bold;
+        text-wrap: balance;
+        text-wrap: pretty;
+        box-sizing: border-box;
       }
       h1 {
         text-align: center;
@@ -74,6 +99,10 @@
       figure {
         border: 1px solid var(--tertiary);
         padding-bottom: 1rem;
+
+        &:last-of-type {
+          margin-bottom: 3rem;
+        }
       }
       figure > * {
         padding: 0 1rem;
@@ -195,6 +224,12 @@
         figcaption > ul {
           flex-direction: column;
         }
+        figure:last-of-type {
+          margin-bottom: 13rem;
+        }
+        nav {
+          flex-flow: column nowrap;
+        }
       }
       @media (max-width: 400px) {
         .wrapper {
@@ -233,6 +268,35 @@
         <a href="https://www.github.com/sojeri/">Obligatory github link</a>.
         You can also <a href="https://sojeri.github.io/">go back to my landing page</a>.
       </p>
+      <figure class="project">
+        <figcaption>
+          <ul>
+            <li>Project</li>
+            <li>Feb 2026</li>
+          </ul>
+        </figcaption>
+        <h4>The Very Concept Of Time (bell timer app)</h4>
+        <div class="wrapper">
+          <img
+            alt="screenshot of very fiery uncooltoast toast animation"
+            src="../img/uncooltoast.png"
+            width="200"
+            height="200"
+          />
+          <div class="wrapper-col">
+            <ul>
+              <li><a href="https://uncooltoast.github.io/bells/">Try it out</a></li>
+              <li><a href="https://github.com/uncooltoast/uncooltoast.github.io/tree/main/bells/index.html">View source</a></li>
+            </ul>
+            <p>
+              After my preferred meditation timer website went down, I built my own.
+              Use the "uncooltoast it" button to see my preferred set of timers.
+              Still to do: implement a way for folks to save and fetch their own preferred set.
+              RIP, mindfulness.site.
+            </p>
+          </div>
+        </div>
+      </figure>
       <figure class="position">
         <figcaption>
           <ul>
@@ -242,7 +306,7 @@
         </figcaption>
         <h4>
             Senior Software Engineer at Abridge<br />
-            <small>Healthtech medical scribe startup, 100-300 employees</small>
+            <small>Healthtech medical scribe startup, 100-500 employees</small>
         </h4>
         <ul class="skills">
           <li>google cloud platform (GCP)</li>
@@ -256,7 +320,11 @@
           <li>python</li>
           <li>electronic health records (EHR)</li>
           <li>EHR integrations</li>
+          <li>FHIR integrations</li>
           <li>epic systems</li>
+          <li>responsive web design</li>
+          <li>accessibility</li>
+          <li>random webviews embedded in other people's native apps</li>
         </ul>
       </figure>
       <figure class="title-change">
@@ -293,6 +361,7 @@
           <li>java</li>
           <li>deleting PHP</li>
           <li>backstage</li>
+          <li>random webviews embedded in native apps</li>
         </ul>
       </figure>
       <figure class="title-change">
@@ -347,7 +416,7 @@
             <li>January 2019 - Present</li>
           </ul>
         </figcaption>
-        <h4>Cloud Technology 102</h4>
+        <h4>Cloud Technology 102 (Weather app)</h4>
         <div class="wrapper">
           <div class="wrapper-col">
             <ul>
@@ -387,7 +456,7 @@
             <li>September 2018</li>
           </ul>
         </figcaption>
-        <h4>Cloud Technology 101</h4>
+        <h4>Cloud Technology 101 (lightning cloud costume)</h4>
         <div class="wrapper">
           <img
             alt="someone holding a lightning storm cloud umbrella art piece with a few string lights hanging down past the umbrella handle"
@@ -664,6 +733,13 @@
           </ul>
         </figcaption>
       </figure>
+      <nav>
+        <a href="https://sojeri.github.io">landing page</a>
+        <a class="here" href="https://sojeri.github.io/developerStory">developer story</a>
+        <a href="https://uncooltoast.github.io/bells">meditation timer</a>
+        <a href="https://sojeri.github.io/howsTheWeatherSeattle">cloud technology</a>
+        <a href="https://github.com/sojeri">🐍 sojeri</a>
+      </nav>
     </main>
   </body>
 </html>
