@@ -6,6 +6,10 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__5/2026:__
+- updated developer story
+- reduced size of link preview image for all three pages
+
 __2/2026:__
 - added links back to my uncooltoast meditation / bell timer app
 - added missing metadata to all pages
