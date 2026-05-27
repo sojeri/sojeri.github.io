@@ -48,7 +48,7 @@
       }
       main {
         width: calc(100% - 1rem);
-        max-width: 800px;
+        max-width: 900px;
       }
       #line {
         border-left: 1px solid var(--tertiary);
@@ -246,17 +246,19 @@
         display: flex;
         flex-flow: row wrap;
         justify-content: space-evenly;
+        border: 0;
       }
-      #content-controls label {
+      #content-controls .slider {
         cursor: pointer;
         padding: 0.1rem;
         border: 0.1rem solid transparent;
       }
-      #content-controls label:focus {
-        border: 0.1rem solid var(--primary-button);
-      }
       #content-controls input {
-        display: none;
+        height: 0;
+        width: 0;
+        opacity: 0;
+        padding: 0;
+        margin: 0;
       }
       .content-control {
         padding: 0.5rem;
@@ -266,39 +268,39 @@
         justify-content: center;
       }
       /* common pseudo element styles */
-      #content-controls input[type='checkbox'] + label:before,
-      #content-controls input[type='checkbox'] + label:after {
+      #content-controls input[type='checkbox'] + .slider:before,
+      #content-controls input[type='checkbox'] + .slider:after {
         position: absolute;
         content: "";
         display: block;
         transition: var(--transition);
       }
       /* slider / pill OFF */
-      #content-controls input[type='checkbox'] + label:before {
+      #content-controls input[type='checkbox'] + .slider:before {
         left: 0.4rem;
         top: 0.4rem;
         height: 1.4rem;
         width: 3rem;
         border: 0.1rem solid var(--accent-foreground);
-        /* border-radius: 1rem; */
+        border-radius: 1rem;
         background: var(--tertiary);
       }
       /* slider / pill ON */
-      #content-controls input[type='checkbox']:checked + label:before {
+      #content-controls input[type='checkbox']:checked + .slider:before {
         background: var(--secondary-button);
       }
       /* switch / indicator OFF */
-      #content-controls input[type='checkbox'] + label:after {
+      #content-controls input[type='checkbox'] + .slider:after {
         left: 0.6rem;
         top: 0.6rem;
         height: 1rem;
         width: 1rem;
-        /* border-radius: 50%; */
+        border-radius: 50%;
         border: 0.1rem solid var(--accent-foreground);
         background: var(--accent-foreground);
       }
       /* switch / indicator ON */
-      #content-controls input[type='checkbox']:checked + label:after {
+      #content-controls input[type='checkbox']:checked + .slider:after {
         left: 2.2rem;
       }
       .nope {
@@ -341,7 +343,13 @@
       }
     </style>
     <script type="text/javascript">
-      function handleInputClick(wat) {
+      function handleInputChange(wat) {
+        // update controls
+        const nearby = wat.nextSibling.nextSibling
+        const watLabel = wat.getAttribute('aria-label');
+        nearby?.setAttribute('aria-label', wat.checked ? `${watLabel} shown` : `${watLabel} hidden`);
+
+        // update timeline events
         const elementsToUpdate = document.getElementsByClassName(wat.value);
         for (let i = 0; i < elementsToUpdate.length; i++) {
           const current = elementsToUpdate[i];
@@ -352,10 +360,14 @@
           }
         }
       }
+      function handleLabelClick(nearby) {
+        nearby.previousSibling.previousSibling.click();
+      }
       function handleLabelKeydown(nearby, event) {
-        if (event.code === 'Enter') nearby.click();
+        if (event.code === 'Enter') handleLabelClick(nearby);
       }
       document.addEventListener('DOMContentLoaded', () => {
+        // handling for keyboard navigation
         const elementsToTrack = document.getElementsByClassName('slider');
         for (let i = 0; i < elementsToTrack.length; i++) {
           const current = elementsToTrack[i];
@@ -363,6 +375,13 @@
             handleLabelKeydown(current, e);
           })
         }
+        // bonus handling for some browsers which remember checkbox state between page reloads
+        ['position', 'project', 'award', 'title-change', 'education'].map(
+          s => { return `${s}-control` }
+        ).forEach(id => {
+          const element = document.getElementById(id);
+          if (element) handleInputChange(element);
+        })
       })
     </script>
   </head>
@@ -389,30 +408,30 @@
         You can also <a href="https://sojeri.github.io/">go back to my landing page</a>.
       </p>
       <!-- not CSS only display controls -->
-      <div id="content-controls" class="intro" aria-controls="timeline">
-        <h2>Show / Hide Content</h2>
-        <div id="controls">
+      <div id="content-controls" class="intro" aria-controls="timeline" aria-live="polite">
+        <fieldset id="controls" aria-labelledby="controls-header">
+          <h2 id="controls-header">Show / Hide Content</h2>
           <div class="content-control">
-            <input type="checkbox" id="project-control" value="project" checked onchange="handleInputClick(this)" />
-            <label tabindex=0 class="slider" for="project-control">side projects</label>
+            <input tabindex="-1" type="checkbox" id="project-control" aria-label="side projects" value="project" onchange="handleInputChange(this)" checked />
+            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="sideProjects">side projects</div>
           </div>
           <div class="content-control">
-            <input type="checkbox" id="position-control" value="position" checked onchange="handleInputClick(this)" />
-            <label tabindex=0 class="slider" for="position-control">positions</label>
+            <input tabindex="-1" type="checkbox" value="position" id="position-control" aria-label="positions" onchange="handleInputChange(this)" checked />
+            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="positions">positions</div>
           </div>
           <div class="content-control">
-            <input type="checkbox" id="title-change-control" value="title-change" checked onchange="handleInputClick(this)" />
-            <label tabindex=0 class="slider" for="title-change-control">titles</label>
+            <input tabindex="-1" type="checkbox" id="title-change-control" value="title-change" checked onchange="handleInputChange(this)" aria-label="titles" />
+            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="titles">titles</div>
           </div>
           <div class="content-control">
-            <input type="checkbox" id="award-control" value="award" checked onchange="handleInputClick(this)" />
-            <label tabindex=0 class="slider" for="award-control">achievements</label>
+            <input tabindex="-1" type="checkbox" id="award-control" aria-label="achievements" value="award" checked onchange="handleInputChange(this)" />
+            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="achievements">achievements</div>
           </div>
           <div class="content-control">
-            <input type="checkbox" id="education-control" value="education" checked onchange="handleInputClick(this)" />
-            <label tabindex=0 class="slider" for="education-control">education</label>
+            <input tabindex="-1" type="checkbox" id="education-control" aria-label="education" value="education" checked onchange="handleInputChange(this)" />
+            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="education">education</div>
           </div>
-        </div>
+        </fieldset>
       </div>
       <div id="timeline" aria-live="polite">
         <figure class="position">
