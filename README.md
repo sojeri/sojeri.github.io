@@ -6,6 +6,10 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__6/2026:__
+- added summary and jump links to developer story
+- tweaked a few things for consistency
+
 __5/2026:__
 - updated developer story
 - reduced size of link preview image for all three pages
