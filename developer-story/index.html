@@ -92,9 +92,6 @@
         font-weight: bold;
         cursor: pointer;
       }
-      details[open] {
-        padding-bottom: 1rem;
-      }
       .details-body {
         margin-left: 1rem;
       }
@@ -183,6 +180,9 @@
         content: "⚡";
         background: var(--position-accent);
       }
+      .noicon::before {
+        display: none;
+      }
       figcaption {
         border-bottom: 1px solid var(--tertiary);
         color: var(--accent-foreground);
@@ -225,7 +225,7 @@
         justify-content: center;
         gap: 0.8rem;
       }
-      .skills:not(:last-child), .summary-links:not(:last-child) {
+      .skills:not(:last-child), .summary-links {
         margin-bottom: 1rem;
       }
       .skills li, figure a {
@@ -343,7 +343,7 @@
           flex-flow: row wrap;
         }
         .images {
-          width: 100%;
+          flex: 1;
           justify-content: space-evenly;
         }
       }
@@ -366,7 +366,7 @@
       }
       @media (max-width: 400px) {
         .wrapper {
-          justify-content: start;
+          justify-content: center;
         }
       }
     </style>
@@ -404,7 +404,7 @@
           })
         }
         // bonus handling for some browsers which remember checkbox state between page reloads
-        ['position', 'project', 'award', 'title-change', 'education', 'summary'].map(
+        ['position', 'project', 'award', 'title-change', 'education'].map(
           s => { return `${s}-control` }
         ).forEach(id => {
           const element = document.getElementById(id);
@@ -428,37 +428,6 @@
           </select>
         </span>
       </div>
-      <!-- not CSS only display controls. RIP, CSS-only page. -->
-      <div id="content-controls" class="intro" aria-controls="timeline" aria-live="polite">
-        <fieldset id="controls" aria-labelledby="controls-header">
-          <h2 id="controls-header">Show / Hide Content</h2>
-          <div class="content-control">
-            <input tabindex="-1" type="checkbox" id="summary-control" aria-label="summary" value="summary" onchange="handleInputChange(this)" checked />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="summary">summary</div>
-          </div>
-          <div class="content-control">
-            <input tabindex="-1" type="checkbox" id="project-control" aria-label="side projects" value="project" onchange="handleInputChange(this)" checked />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="sideProjects">side projects</div>
-          </div>
-          <div class="content-control">
-            <input tabindex="-1" type="checkbox" value="position" id="position-control" aria-label="positions" onchange="handleInputChange(this)" checked />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="positions">positions</div>
-          </div>
-          <div class="content-control">
-            <!-- default unchecked! -->
-            <input tabindex="-1" type="checkbox" id="title-change-control" value="title-change" onchange="handleInputChange(this)" aria-label="titles" />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="titles">titles</div>
-          </div>
-          <div class="content-control">
-            <input tabindex="-1" type="checkbox" id="award-control" aria-label="achievements" value="award" checked onchange="handleInputChange(this)" />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="achievements">achievements</div>
-          </div>
-          <div class="content-control">
-            <input tabindex="-1" type="checkbox" id="education-control" aria-label="education" value="education" checked onchange="handleInputChange(this)" />
-            <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="education">education</div>
-          </div>
-        </fieldset>
-      </div>
       <div id="timeline" aria-live="polite">
         <figure class="summary">
           <figcaption>
@@ -476,26 +445,61 @@
             Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutons. Deeply passionate about user experience and building software to improve human lives.
           </p>
           <details>
+            <summary>Content controls</summary>
+            <!-- not CSS only display controls. RIP, CSS-only page. -->
+            <div id="content-controls" class="details-body" aria-controls="timeline" aria-live="polite">
+              <h4>Show / hide content</h4>
+              <fieldset id="controls" aria-labelledby="controls-header">
+                <div class="content-control">
+                  <input tabindex="-1" type="checkbox" id="project-control" aria-label="side projects" value="project" onchange="handleInputChange(this)" checked />
+                  <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="sideProjects">side projects</div>
+                </div>
+                <div class="content-control">
+                  <input tabindex="-1" type="checkbox" value="position" id="position-control" aria-label="positions" onchange="handleInputChange(this)" checked />
+                  <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="positions">positions</div>
+                </div>
+                <div class="content-control">
+                  <!-- default unchecked! -->
+                  <input tabindex="-1" type="checkbox" id="title-change-control" value="title-change" onchange="handleInputChange(this)" aria-label="titles" />
+                  <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="titles">titles</div>
+                </div>
+                <div class="content-control">
+                  <input tabindex="-1" type="checkbox" id="award-control" aria-label="achievements" value="award" checked onchange="handleInputChange(this)" />
+                  <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="achievements">achievements</div>
+                </div>
+                <div class="content-control">
+                  <input tabindex="-1" type="checkbox" id="education-control" aria-label="education" value="education" checked onchange="handleInputChange(this)" />
+                  <div tabindex="0" class="slider" role="button" onclick="handleLabelClick(this)" aria-controls="content-controls" name="education">education</div>
+                </div>
+              </fieldset>
+            </div>
+          </details>
+          <details>
             <summary>Page jump links</summary>
             <div class="details-body">
-              <h4>Professional experience</h4>
-              <ul class="summary-links">
-                <li><a href="#abridge">Senior Software Engineer @ Abridge</a></li>
-                <li><a href="#spotify">Software Engineer @ Spotify</a></li>
-                <li><a href="#truss">Senior Software Engineer @ TrussWorks</a></li>
-                <li><a href="#uw">Extension Lecturer @ University of Washington</a></li>
-                <li><a href="#microsoft">Software Engineer II @ Microsoft</a></li>
-                <li><a href="#ada">Full Stack Software Engineering @ Ada Developers Academy</a></li>
-              </ul>
-              <h4>Side projects</h4>
-              <ul class="summary-links">
-                <li><a href="#ring-ring-ring-ring-ring-ring-ring">Meditation bell timer app: What even is time??</a></li>
-                <li><a href="#developer-story">StackOverflow Developer Story</a></li>
-                <li><a href="#cloud-technology-102">Weather app: How's the weather, Seattle?</a></li>
-                <li><a href="#cloud-technology-101">Lightning cloud costume</a></li>
-                <li><a href="#solar-system">Solar system model</a></li>
-                <li><a href="#set-clone">Set clone</a></li>
-              </ul>
+              <p>Requires positions and/or side projects to be visible in order to have jump links  .</p>
+              <div class="position noicon">
+                <h4>Professional experience</h4>
+                <ul class="summary-links">
+                  <li><a href="#abridge">Senior Software Engineer @ Abridge</a></li>
+                  <li><a href="#spotify">Software Engineer @ Spotify</a></li>
+                  <li><a href="#truss">Senior Software Engineer @ TrussWorks</a></li>
+                  <li><a href="#uw">Extension Lecturer @ University of Washington</a></li>
+                  <li><a href="#microsoft">Software Engineer II @ Microsoft</a></li>
+                  <li><a href="#ada">Full Stack Software Engineering @ Ada Developers Academy</a></li>
+                </ul>
+              </div>
+              <div class="project noicon">
+                <h4>Side projects</h4>
+                <ul class="summary-links">
+                  <li><a href="#ring-ring-ring-ring-ring-ring-ring">Meditation bell timer app: What even is time??</a></li>
+                  <li><a href="#developer-story">StackOverflow Developer Story</a></li>
+                  <li><a href="#cloud-technology-102">Weather app: How's the weather, Seattle?</a></li>
+                  <li><a href="#cloud-technology-101">Lightning cloud costume</a></li>
+                  <li><a href="#solar-system">Solar system model</a></li>
+                  <li><a href="#set-clone">Set clone</a></li>
+                </ul>
+              </div>
             </div>
           </details>
         </figure>
@@ -652,6 +656,26 @@
             <li>vendor software fun times</li>
             <li>random webviews embedded in other people's native apps</li>
           </ul>
+          <div class="wrapper images">
+            <img
+              alt="a mayo clinic tumbler and a phone with the abridge active recording screen on a small table or desk"
+              src="../img/sojeri-work-sample-abridge-mayo-clinic-active-recording-screen.png"
+              width="200"
+              height="200"
+            />
+            <img
+              alt="epic ambient flowsheets screen with ambient listening data available markers next to several rows including respiratory rate, oxygen saturation, breath sounds, heart rate, and blood pressure. I built that integration with the epic system -- including working with epic stakeholders to design the bespoke API for ambient nursing :)"
+              src="../img/sojeri-work-sample-abridge-epic-ambient-flowsheets.png"
+              width="200"
+              height="200"
+            />
+            <img
+              alt="nursing care plan and patient education headers over UI showing part of a care plan for a patient who wants to be able to walk to the kitchen without getting out of breath. I built that prototype feature!"
+              src="../img/sojeri-work-sample-abridge-nursing-care-plan.png"
+              width="200"
+              height="200"
+            />
+          </div>
         </figure>
         <figure class="title-change">
           <figcaption>
@@ -902,6 +926,20 @@
             user's email inbox, saving time for millions of daily active users by reducing the need to navigate away
             from OWA Mail module by 5%. (Filed May 2017, published Nov 2018, granted June 2020, based on my apprenticeship project.)
           </p>
+          <div class="wrapper images">
+            <img
+              alt="next calendar event feature -- view in outlook focused inbox"
+              src="../img/sojeri-work-sample-microsoft-upnext-in-focused-inbox.png"
+              width="200"
+              height="200"
+            />
+            <img
+              alt="next calendar event feature -- diagram from US patent with numbers pointing to several parts of the UI including the event title, event time, and feature name"
+              src="../img/sojeri-work-sample-microsoft-upnext-from-patent-diagram.png"
+              width="200"
+              height="200"
+            />
+          </div>
         </figure>
         <figure class="position" id="uw">
           <figcaption>
