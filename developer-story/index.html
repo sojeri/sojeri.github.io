@@ -8,6 +8,7 @@
     <meta property="og:description" content="🐍 Jeri Sommers's Developer Story. Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutons. Deeply passionate about user experience and building software to improve human lives." />
     <meta property="og:image" content="https://sojeri.github.io/img/sojeri-side-project-cloud-technology-101-static.jpg" />
     <meta property="og:title" content="🐍 Jeri Sommers | Developer Story" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
     <title>🐍 Jeri Sommers | Developer Story</title>
     <style type="text/css">
       :root {
@@ -40,7 +41,7 @@
         flex-flow: row nowrap;
         justify-content: center;
       }
-      body, ul, h2, h4, p {
+      body, ul, h2, p {
         margin: 0;
         padding: 0;
       }
@@ -78,13 +79,14 @@
         text-wrap: pretty;
         box-sizing: border-box;
       }
-      h1, h2 {
+      h1 {
         text-align: center;
       }
       h2 {
-        font-size: 1.3rem;
+        font-size: 1rem;
+        box-sizing: border-box;
       }
-      h2, h4, summary {
+      h2, summary {
         margin-bottom: 1rem;
       }
       summary {
@@ -154,7 +156,7 @@
         content: "🚙";
       }
       .rage::before {
-        content: "😡";
+        content: "🍕";
       }
       .education::before {
         content: "🎓";
@@ -224,6 +226,9 @@
         flex-flow: row wrap;
         justify-content: center;
         gap: 0.8rem;
+      }
+      i { /* handling for font awesome logos */        
+        padding-right: 0.3rem;
       }
       .skills:not(:last-child), .summary-links {
         margin-bottom: 1rem;
@@ -411,9 +416,23 @@
           if (element) handleInputChange(element);
         })
       })
+      const helloWorld = function() {
+          const hello = [
+            "Hey, you've reached Jeri.",
+            "I can't come to the phone right now.",
+            "Please leave me a message,",
+            "and I'll get back to you shortly.",
+            "LinkedIn: https://www.linkedin.com/in/sojeri",
+            "Github: https://github.com/sojeri"
+          ];
+
+          hello.forEach(function(x) {
+              console.error(x);
+          });
+      }
     </script>
   </head>
-  <body>
+  <body onload="helloWorld()">
     <div id="line"></div>
     <main>
       <h1>Jeri Sommers 🐍</h1>
@@ -437,9 +456,30 @@
             </ul>
           </figcaption>
           <ul class="summary-links">
-            <li><a href="https://www.linkedin.com/in/sojeri">LinkedIn</a></li>
-            <li><a href="https://github.com/sojeri">GitHub</a></li>
-            <li><a href="https://sojeri.github.io">Landing Page</a></li>
+            <li>
+              <a href="https://www.linkedin.com/in/sojeri">
+                <i class="fa fa-linkedin" alt=""></i>
+                LinkedIn
+              </a>
+            </li>
+            <li>
+              <a href="https://github.com/sojeri">
+                <i class="fa fa-github" alt=""></i>
+                GitHub
+              </a>
+            </li>
+            <li>
+              <a href="https://sojeri.github.io">
+                <i class="fa fa-desktop" alt=""></i>
+                Landing Page
+              </a>
+            </li>
+            <li>
+              <a href="https://sojeri.github.io/developer-story">
+                <i class="fa fa-stack-overflow" alt=""></i>
+                Developer Story (you are already here)
+              </a>
+            </li>
           </ul>
           <p>
             Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutons. Deeply passionate about user experience and building software to improve human lives.
@@ -448,7 +488,7 @@
             <summary>Content controls</summary>
             <!-- not CSS only display controls. RIP, CSS-only page. -->
             <div id="content-controls" class="details-body" aria-controls="timeline" aria-live="polite">
-              <h4>Show / hide content</h4>
+              <h2>Show / hide content</h2>
               <fieldset id="controls" aria-labelledby="controls-header">
                 <div class="content-control">
                   <input tabindex="-1" type="checkbox" id="project-control" aria-label="side projects" value="project" onchange="handleInputChange(this)" checked />
@@ -479,7 +519,7 @@
             <div class="details-body">
               <p>Requires positions and/or side projects to be visible in order to have jump links  .</p>
               <div class="position noicon">
-                <h4>Professional experience</h4>
+                <h2>Professional experience</h2>
                 <ul class="summary-links">
                   <li><a href="#abridge">Senior Software Engineer @ Abridge</a></li>
                   <li><a href="#spotify">Software Engineer @ Spotify</a></li>
@@ -490,7 +530,7 @@
                 </ul>
               </div>
               <div class="project noicon">
-                <h4>Side projects</h4>
+                <h2>Side projects</h2>
                 <ul class="summary-links">
                   <li><a href="#ring-ring-ring-ring-ring-ring-ring">Meditation bell timer app: What even is time??</a></li>
                   <li><a href="#developer-story">StackOverflow Developer Story</a></li>
@@ -510,10 +550,10 @@
               <li>May 2026 - Present</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
             Carpentry Interlude
             <small>(Sabbatical)</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>built a toolbox</li>
             <li>wired my first full electrical circuit</li>
@@ -534,7 +574,7 @@
               <li>April 2026</li>
             </ul>
           </figcaption>
-          <h4>10 year milestone</h4>
+          <h2>10 year milestone</h2>
           <p>
             Officially been a software engineer for 10 years!
           </p>
@@ -543,10 +583,16 @@
           <figcaption>
             <ul>
               <li>Project</li>
-              <li>Feb 2026</li>
+              <li>February 2026</li>
             </ul>
           </figcaption>
-          <h4>The Very Concept Of Time (bell timer app)</h4>
+          <h2>The Very Concept Of Time (bell timer app)</h2>
+          <p class="padded">
+            After my preferred meditation timer website went down, I built my own.
+            Use the "uncooltoast it" button to see my preferred set of timers.
+            Still to do: implement a way for folks to save and fetch their own preferred set.
+            RIP, mindfulness.site.
+          </p>
           <div class="wrapper">
             <div class="wrapper images">
               <img
@@ -564,7 +610,7 @@
             </div>
             <div class="vertical">
               <ul>
-                <li><a href="https://uncooltoast.github.io/bells/">Try it out</a></li>
+                <li><a href="https://uncooltoast.github.io/bells/">Schedule some bell-ringing</a></li>
                 <li><a href="https://github.com/uncooltoast/uncooltoast.github.io/tree/main/bells/index.html">View source</a></li>
               </ul>
               <ul class="skills">
@@ -575,12 +621,6 @@
                 <li>creative commons audio</li>
                 <li>re-implementing the concept of the passing of time, courtesy of the programmatic bells :]</li>
               </ul>
-              <p>
-                After my preferred meditation timer website went down, I built my own.
-                Use the "uncooltoast it" button to see my preferred set of timers.
-                Still to do: implement a way for folks to save and fetch their own preferred set.
-                RIP, mindfulness.site.
-              </p>
             </div>
           </div>
         </figure>
@@ -591,7 +631,10 @@
               <li>December 2025</li>
             </ul>
           </figcaption>
-          <h4>StackOverflow Developer Story</h4>
+          <h2>StackOverflow Developer Story</h2>
+          <p class="inline-links padded">
+            I made this because I missed the fun parts of having a <a href="https://stackoverflow.blog/2016/10/11/bye-bye-bullets-the-stack-overflow-developer-story-is-the-new-technical-resume/">StackOverflow Developer Story</a>.
+          </p>
           <div class="wrapper">
             <div class="wrapper images">
               <img
@@ -618,9 +661,6 @@
                 <li>css-only color theming (including the switcher) :]</li>
                 <li>semi-accessible content display controls (uses js)</li>
               </ul>
-              <p class="inline-links">
-                I made this because I missed the fun parts of having a <a href="https://stackoverflow.blog/2016/10/11/bye-bye-bullets-the-stack-overflow-developer-story-is-the-new-technical-resume/">StackOverflow Developer Story</a>.
-              </p>
             </div>
           </div>
         </figure>
@@ -631,10 +671,10 @@
               <li>August 2024 - April 2026</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
               Senior Software Engineer at Abridge<br />
               <small>Healthtech medical scribe startup (voice to transcript & medical note/documentation), 100-500 employees</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>google cloud platform (GCP)</li>
             <li>typescript</li>
@@ -695,10 +735,10 @@
               <li>June 2021 - March 2024</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
             Software Engineer at Spotify<br />
             <small>Music/media streaming company, 8-10k employees</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>google cloud platform (GCP)</li>
             <li>typescript</li>
@@ -752,7 +792,7 @@
               <li>March 2020</li>
             </ul>
           </figcaption>
-          <h4>5 year milestone</h4>
+          <h2>5 year milestone</h2>
           <p>
             It's been 5 years since my first software project!!
           </p>
@@ -764,10 +804,10 @@
               <li>February 2019 - March 2021</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
             Senior Software Engineer at TrussWorks<br />
             <small>Govtech consulting firm, 50-150 employees</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>typescript</li>
             <li>javascript</li>
@@ -803,7 +843,13 @@
               <li>January 2019 - Present</li>
             </ul>
           </figcaption>
-          <h4>Cloud Technology 102 (Weather app)</h4>
+          <h2>Cloud Technology 102 (Weather app)</h2>
+          <p class="padded">
+            Hobby project inspired by the 100 days of CSS challenge -- specifically, inspired by day 9.
+            I wanted to make a little widget that shows the current state of Seattle's weather.
+            Note that you will always get the Seattle skyline but aren't actually stuck with our weather.
+            Optimized for a 400x400 display.
+          </p>
           <div class="wrapper">
             <div class="wrapper images">
               <img
@@ -835,12 +881,6 @@
                 <li>open UV API</li>
                 <li>RIP solunar API</li>
               </ul>
-              <p>
-                Hobby project inspired by the 100 days of CSS challenge -- specifically, inspired by day 9.
-                I wanted to make a little widget that shows the current state of Seattle's weather.
-                Note that you will always get the Seattle skyline but aren't actually stuck with our weather.
-                Optimized for a 400x400 display.
-              </p>
             </div>
           </div>
         </figure>
@@ -859,7 +899,12 @@
               <li>September 2018</li>
             </ul>
           </figcaption>
-          <h4>Cloud Technology 101 (lightning cloud costume)</h4>
+          <h2>Cloud Technology 101 (lightning cloud costume)</h2>
+          <p class="padded">
+            Absolutely destroyed an umbrella and several paper lanterns to make the
+            most epic lightning cloud costume for Luminata, a local lights arts festival
+            run by the Fremont Arts Council.
+          </p>
           <div class="wrapper">
             <div class="images wrapper">
               <img
@@ -886,11 +931,6 @@
                 <li>burning myself with hot glue</li>
                 <li>the painful lesson that anything can be heavy when you have to carry it for hours</li>
               </ul>
-              <p>
-                Absolutely destroyed an umbrella and several paper lanterns to make the
-                most epic lightning cloud costume for Luminata, a local lights arts festival
-                run by the Fremont Arts Council.
-              </p>
             </div>
           </div>
         </figure>
@@ -920,8 +960,8 @@
               <li>May 2017</li>
             </ul>
           </figcaption>
-          <h4>US Patent (Microsoft)</h4>
-          <p>
+          <h2>US Patent (Microsoft)</h2>
+          <p class="padded">
             Developed a feature that surfaced the most important next calendar event at the top of a
             user's email inbox, saving time for millions of daily active users by reducing the need to navigate away
             from OWA Mail module by 5%. (Filed May 2017, published Nov 2018, granted June 2020, based on my apprenticeship project.)
@@ -948,10 +988,10 @@
               <li>September 2016 - April 2017</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
             Extension Lecturer aka Glorified TA at UW PCE<br />
             <small>University of Washington's Professional & Continuing Education's Responsive Web Design series, 20-45 students</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>coaching</li>
             <li>debugging</li>
@@ -993,7 +1033,7 @@
               <li>March 2016</li>
             </ul>
           </figcaption>
-          <h4>1 year milestone</h4>
+          <h2>1 year milestone</h2>
           <p>First full calendar year as software engineer!</p>
         </figure>
         <figure class="position" id="microsoft">
@@ -1003,10 +1043,10 @@
               <li>December 2015 - June 2018</li>
             </ul>
           </figcaption>
-          <h4>
+          <h2>
             Software Engineer II at Microsoft<br />
             <small>Enterprise hardware, software, & acquisitions company, 200-220k employees</small>
-          </h4>
+          </h2>
           <ul class="skills">
             <li>typescript</li>
             <li>javascript</li>
@@ -1045,7 +1085,7 @@
               <li>May 2015 - April 2016</li>
             </ul>
           </figcaption>
-          <h4>Full Stack Software Engineering at Ada Developers Academy</h4>
+          <h2>Full Stack Software Engineering at Ada Developers Academy</h2>
           <div class="wrapper">
             <div class="wrapper images">
               <img
@@ -1086,7 +1126,7 @@
               <li>April 2015</li>
             </ul>
           </figcaption>
-          <h4>Solar system model</h4>
+          <h2>Solar system model</h2>
           <div class="wrapper">
             <div class="images wrapper">
               <img
@@ -1132,7 +1172,13 @@
               <li>March 2015</li>
             </ul>
           </figcaption>
-          <h4>First ever coding project: Set clone</h4>
+          <h2>First ever coding project: Set clone</h2>
+          <p class="padded">
+            My first ever coding project! Built during my downtime between calls while working in a call center.
+            It's a more color-blind-friendly version of the Set game.
+            You can spam the hint button to auto play the entire game.
+            View source to see my MS Excel-inspired deeply nested if statement-based code 😂
+          </p>
           <div class="wrapper">
             <div class="wrapper images">
               <img
@@ -1150,7 +1196,7 @@
             </div>
             <div class="vertical">
               <ul>
-                <li><a href="https://sojeri.github.io/setGame/">Try it out</a></li>
+                <li><a href="https://sojeri.github.io/setGame/">Play the game</a></li>
                 <li><a href="https://github.com/sojeri/setGame">View source</a></li>
               </ul>
               <ul class="skills">
@@ -1160,12 +1206,6 @@
                 <li>javascript to write canvas shapes</li>
                 <li>the most deeply nested if statements</li>
               </ul>
-              <p>
-                My first ever coding project! Built during my downtime between calls while working in a call center.
-                It's a more color-blind-friendly version of the Set game.
-                You can spam the hint button to auto play the entire game.
-                View source to see my MS Excel-inspired deeply nested if statement-based code 😂
-              </p>
             </div>
           </div>
         </figure>
@@ -1187,7 +1227,7 @@
               <li>2012 - 2013</li>
             </ul>
           </figcaption>
-          <h4>Hitchhiked over 1300 km across Europe and Turkey</h4>
+          <h2>Hitchhiked over 1300 km across Europe and Turkey</h2>
           <div class="wrapper">
             <div class="vertical">
               <ul>
@@ -1217,7 +1257,7 @@
               <li>2012</li>
             </ul>
           </figcaption>
-          <h4>Rage quit the restaurant industry</h4>
+          <h2>Rage quit the restaurant industry</h2>
           <p>
             After some enjoyable time getting paid to listen to music while driving, I became a restaurant manager. The siren call of pizza could only take me so far in life. Eventually I left to find out what I might be better at doing. :)
           </p>
