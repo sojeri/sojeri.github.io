@@ -6,6 +6,9 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__9/2026:__
+- fix solutons typo ;_;
+
 __6/2026:__
 - added summary and jump links to developer story
 - tweaked a few things for consistency
