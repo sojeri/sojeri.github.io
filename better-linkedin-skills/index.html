@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="🐍 Jeri Sommers" />
+    <meta name="description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Software Engineer | Ex-Spotify, Ex-Microsoft | Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives." />
+    <meta property="og:description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Software Engineer | Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives." />
+    <meta property="og:image" content="https://sojeri.github.io/img/sojeri-side-project-cloud-technology-101-static.jpg" />
+    <meta property="og:title" content="🐍 Jeri Sommers | Better LinkedIn Skills" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>🐍 Jeri Sommers | Better LinkedIn Skills</title>
+    <style type="text/css">
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        background: black;
+        color: white;
+        text-align: center;
+        height: 100%;
+        width: 100%;
+      }
+      noscript, main {
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 1rem;
+        justify-content: center;
+        font-family: sans-serif;
+        padding: 0.5rem;
+        box-sizing: border-box;
+      }
+      noscript {
+        font-size: 1.3rem;
+        height: 100vh;
+        width: 100vw;
+      }
+      main {
+        height: 100%;
+        width: 100%;
+        overflow-y: auto;
+      }
+      a {
+        text-decoration: none;
+        font-weight: bold;
+        color: aqua;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      a:visited {
+        color: coral;
+      }
+      .summary-links {
+        display: flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        gap: 0.8rem;
+        margin-bottom: 1rem;
+        list-style: none;
+      }
+      i { /* handling for font awesome logos */        
+        padding-right: 0.3rem;
+      }
+      .summary-links a {
+        background: aqua;
+        color: black;
+        display: block;
+        padding: 0.4rem;
+        border-radius: 0.5rem;
+        text-align: center;
+        font-size: 0.8rem;
+      }
+      .skills {
+        display: flex;
+        flex-flow: row wrap;
+        list-style-type: none;
+        align-items: center;
+        justify-content: center;
+        gap: 0.2rem;
+      }
+      .skill {
+        padding: 0.2rem;
+        border: 0.2rem transparent;
+        background: #000;
+      }
+      .XS {
+        font-size: 1rem;
+      }
+      .S {
+        font-size: 1.2rem;
+      }
+      .M {
+        font-size: 1.5rem;
+      }
+      .L {
+        font-size: 2rem;
+      }
+      .XL {
+        font-size: 3rem;
+      }
+      .red {
+        color: lightcoral;
+      }
+      .red-background {
+        background: lightcoral;
+      }
+      .orange {
+        color: orange;
+      }
+      .orange-background {
+        background: orange;
+      }
+      .yellow {
+        color: gold;
+      }
+      .yellow-background {
+        background: gold;
+      }
+      .green {
+        color: chartreuse;
+      }
+      .green-background {
+        background: chartreuse;
+      }
+      .blue {
+        color: cyan;
+      }
+      .blue-background {
+        background: cyan;
+      }
+      .indigo {
+        color: skyblue;
+      }
+      .indigo-background {
+        background: skyblue;
+      }
+      .violet {
+        color: plum;
+      }
+      .violet-background {
+        background: plum;
+      }
+      .grey {
+        color: lightgray;
+      }
+      .grey-background {
+        background: lightgray;
+      }
+      .beige {
+        color: beige;
+      }
+      .beige-background {
+        background: beige;
+      }
+      .anothergreen {
+        color: mediumspringgreen;
+      }
+      .anothergreen-background {
+        background: mediumspringgreen;
+      }
+      .anotherblue {
+        color: lightcyan;
+      }
+      .anotherblue-background {
+        background: lightcyan;
+      }
+      .selected {
+        border: 0.2rem dotted white;
+      }
+      .detail-wrappper {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        margin-bottom: 1rem;
+      }
+      .detail-header {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        padding: 0.5rem;
+        color: #000;
+        text-wrap: balance;
+        gap: 0.5rem;
+      }
+      .clear {
+        border: 0;
+        align-self: flex-start;
+      }
+      .detail {
+        text-align: center;
+        font-size: 1rem;
+        max-width: 300px;
+        height: auto;
+        display: flex;
+        flex-flow: column nowrap;
+      }
+      .detail-list {
+        background-color: #ccc;
+        color: #000;
+        padding: 0.3rem;
+        display: flex;
+        flex-flow: column nowrap;
+        gap: 0.4rem;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <p>I'm sorry, you need to enable JavaScript to view this page.</p>
+      <p>It is a React app.</p>
+      <p>🐍</p>
+      <p><a href="https://sojeri.github.io/">sojeri.github.io</a></p>
+    </noscript>
+    <script type="text/babel">
+      const { useState, useCallback, useEffect } = React;
+
+      /** shuffles an array of skills for better display as a tag cloud */
+      const shuffleSkills = (newSkills) => {
+        const shuffled = [...newSkills];
+        const size = newSkills.length;
+
+        for (let i = 0; i < size * 2; i++) {
+          const firstIndex = Math.floor(Math.random() * size);
+          const secondIndex = Math.floor(Math.random() * size);
+          if (firstIndex !== secondIndex) {
+            const first = shuffled[firstIndex];
+            shuffled[firstIndex] = shuffled[secondIndex];
+            shuffled[secondIndex] = first;
+          }
+        }
+        
+        return shuffled;
+      }
+
+      /**
+       * calculates some high level stats about a collection of skills
+       * - min
+       * - max
+       * - step
+       */
+      const calculateStats = (skills) => {
+        const size = skills.length;
+        let min = Number.POSITIVE_INFINITY;
+        let max = Number.NEGATIVE_INFINITY;
+        
+        skills.forEach(skill => {
+          const { count } = skill;
+          max = count > max ? count : max;
+          min = count < min ? count : min;
+        })
+
+        const step = Math.floor((max - min) / 5);
+        return { min, max, step };
+      }
+
+      /**
+       * adds additional display props to skills
+       * - size
+       * - color
+       * 
+       * & normalizes duration
+       */
+      const decorateSkills = (rawSkills) => {
+        const { min, max, step } = calculateStats(rawSkills);
+        const one = min + step;
+        const two = one + step;
+        const four = max - step;
+        const three = four - step;
+        const colors = [
+          'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'grey',
+          'beige', 'anothergreen', 'anotherblue',
+        ];
+        let currentColor = 0;
+        const skills = rawSkills.map(rawSkill => {
+          const skill = { ...rawSkill };
+
+          // noramlize data
+          skill.duration = Math.floor(skill.duration);
+
+          //
+          // SIZE
+          //
+          const { count } = skill;
+          if (count > four) {
+            skill.size = 'XL';
+          } else if (count > three) {
+            skill.size = 'L';
+          } else if (count > two) {
+            skill.size = 'M';
+          } else if (count > one) {
+            skill.size = 'S';
+          } else {
+            skill.size = 'XS';
+          }
+
+          //
+          // COLOR
+          //
+          skill.color = colors[currentColor];
+          currentColor += 1;
+          currentColor = currentColor < colors.length ? currentColor : 0;
+
+          return skill;
+        });
+
+        return skills;
+      }
+
+      /** represents a single tag in the tag cloud */
+      const Skill = (props) => {
+        const { size, color, value, duration, isSelected, handleClickCb } = props;
+        const handleButtonClick = () => {
+          handleClickCb(props);
+        }
+
+        return (
+          <li>
+            <button            
+              role="radio"
+              aria-checked={isSelected}
+              className={`skill ${size} ${color} ${isSelected && 'selected'}`}
+              onClick={handleButtonClick}
+            >{value}</button>
+          </li>
+        )
+      }
+
+      /** represents a single selected skill with more info than displayed in the tag cloud */
+      const DetailedSkill = (props) => {
+        const { color, roles, value, duration, isSelected, handleClickCb } = props;
+        const isYearsPlural = duration !== 1;
+        const hasRoles = roles && roles.length > 0;
+        const handleClearClick = () => {
+          handleClickCb({})
+        }
+        const handleNestedClearClick = (e) => {
+          e.stopPropagation();
+          handleClearClick();
+        }
+
+        return (
+          <div className="detail-wrappper">
+            <div className="detail">
+              {hasRoles && (
+                <>
+                  <div className={`detail-header ${color}-background`} onClick={handleClearClick}>
+                    <p><strong>{value}</strong> ({duration} year{isYearsPlural && 's'})</p>
+                    <button className={`clear ${color}-background`} onClick={handleNestedClearClick}>X</button>
+                  </div>
+                  <ul className="detail-list">
+                    {roles.map(r => (
+                      <li key={r}>{r}</li>
+                    ))}
+                  </ul>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      }
+
+      /** the full list of skills in the tag cloud */
+      const Skills = () => {
+        const [skills, setSkills] = useState([]);
+        const [detailedSkill, setDetailedSkill] = useState({});
+        const isLackingAnySkills = skills.length === 0;
+
+        const updateDetailed = useCallback((skill) => {
+          setDetailedSkill(skill.isSelected ? {} : skill);
+        });
+
+        useEffect(() => {
+          fetch('https://sojeri.github.io/better-linkedin-skills/skills.json')
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              }
+            })
+            .then(data => {
+              const decorated = decorateSkills(data);
+              const shuffled = shuffleSkills(decorated);
+              setSkills(shuffled);
+            })
+            .catch(e => {
+              console.log('alas, I failed to load ye');
+              throw e;
+            })
+        }, []);
+
+        return isLackingAnySkills
+          ? (
+            <div>Loading skills...</div>
+          ) : (
+            <div>
+              <DetailedSkill {...detailedSkill} handleClickCb={updateDetailed} />
+              <ul className="skills">
+                {skills.map(s => (
+                  <Skill
+                    key={s.value}
+                    {...s}
+                    handleClickCb={updateDetailed}
+                    isSelected={detailedSkill.value === s.value}
+                  />
+                ))}
+              </ul>
+            </div>
+          ) 
+      }
+
+      const BetterLinkedInSkills = () => {
+        return (
+          <main>
+            <h1>🐍 Jeri Sommers | Better LinkedIn Skills</h1>
+            <ul class="summary-links">
+              <li>
+                <a href="https://www.linkedin.com/in/sojeri">
+                  <i class="fa fa-linkedin" alt=""></i>
+                  LinkedIn
+                </a>
+              </li>
+              <li>
+                <a href="https://sojeri.github.io/better-linkedin-skills">
+                  <i class="fa fa-linkedin" alt=""></i>
+                  Better LinkedIn Skills (you are already here)
+                </a>
+              </li>
+              <li>
+                <a href="https://github.com/sojeri">
+                  <i class="fa fa-github" alt=""></i>
+                  GitHub
+                </a>
+              </li>
+              <li>
+                <a href="https://sojeri.github.io">
+                  <i class="fa fa-desktop" alt=""></i>
+                  Landing Page
+                </a>
+              </li>
+              <li>
+                <a href="https://sojeri.github.io/developer-story">
+                  <i class="fa fa-stack-overflow" alt=""></i>
+                  Developer Story
+                </a>
+              </li>
+            </ul>
+            <p>Prefer structured data? <a href="./tableview.html">Review the same data as a table here.</a></p>
+            <Skills />
+          </main>
+        );
+      };
+
+      ReactDOM.render(<BetterLinkedInSkills />, document.getElementById("root"));
+    </script>
+    <div id="root"></div>
+  </body>
+</html>
