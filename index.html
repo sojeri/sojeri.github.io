@@ -11,9 +11,32 @@
     <title>🐍 Jeri Sommers | Senior Software Engineer with 10+ years building reliable systems in complex, regulated, and fast-moving environments</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
     <style type="text/css">
+      :root {
+        --primary-background: light-dark(white, #131313);
+        --accent-foreground: light-dark(#131313, white);
+        --primary-button: light-dark(darkcyan, aqua);
+        --secondary-button: light-dark(darkviolet, coral);
+        --transition: 0.6s;
+      }
+      html {
+        color-scheme: light dark;
+        background: var(--primary-background);
+        color: var(--accent-foreground);
+      }
+      html:has(#color-scheme [value="light"]:checked) {
+        color-scheme: light;
+      }
+      html:has(#color-scheme [value="dark"]:checked) {
+        color-scheme: dark;
+      }
       body {
         font-family: "Open Sans", sans-serif;
         margin: 0;
+      }
+      * {
+        transition:
+          background var(--transition),
+          color var(--transition);
       }
       
       body, nav li {
@@ -36,7 +59,7 @@
       a {
         text-decoration: none;
         font-weight: bold;
-        color: aqua;
+        color: var(--primary-button);
       }
 
       a:hover {
@@ -44,7 +67,7 @@
       }
 
       a:visited {
-        color: coral;
+        color: var(--secondary-button);
       }
 
       body, header {
@@ -52,8 +75,6 @@
         min-height: 100vh;
         display: flex;
         flex-flow: column nowrap;
-        background: #131313;
-        color: white;
         text-align: center;
         align-items: center;
         justify-content: center;
@@ -80,6 +101,10 @@
 
       li a {
         padding-left: 0.3rem;
+      }
+
+      .switcher {
+        padding-top: 1rem;
       }
     </style>
     <script type="text/javascript">
@@ -121,6 +146,17 @@
           </li>
         </ul>
       </nav>
+      <!-- CSS only theme switcher :) -->
+      <div class="switcher">
+        <span>
+          <label for="color-scheme">Color scheme:</label>
+          <select id="color-scheme">
+            <option value="auto">Auto</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </span>
+      </div>
     </header>
     <section>
       <h3>

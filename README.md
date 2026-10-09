@@ -9,6 +9,8 @@ to be honest, there's not much going on here.
 __10/2026:__
 - add linkedin skills cloud because I hate the current linkedin UX
 - add tableview for people who prefer structured views
+- add theme switcher to landing page
+  (still TODO for the new skills page)
 
 __9/2026:__
 - fix solutons typo ;_;
