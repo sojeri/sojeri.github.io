@@ -9,6 +9,9 @@ to be honest, there's not much going on here.
 __10/2026:__
 - add linkedin skills cloud because I hate the current linkedin UX
 - add tableview (with sorting!) for people who prefer structured views
+  (still needs filter work)
+- add timeline view with filtering by skill
+  (still needs styling work)
 - add theme switcher to landing page
   (still TODO for the new skills page)
 

@@ -38,7 +38,7 @@
       }
       .flex-gap-half {
         display: flex;
-        margin: 0.5rem 0;
+        gap: 0.5rem 0;
       }
       noscript, main {
         flex-flow: column nowrap;
@@ -171,6 +171,7 @@
         color: beige;
       }
       .beige-background {
+
         background: beige;
       }
       .anothergreen {
@@ -238,14 +239,13 @@
       .view-buttons-wrapper {
         display: flex;
         flex-flow: row nowrap;
-        max-width: 400px;
       }
       .view-buttons-wrapper button {
         padding: 0.5rem;
         border: 0;
         cursor: pointer;
         margin: 0.1rem;
-        min-width: 150px;
+        min-width: 125px;
       }
       .view-buttons-wrapper button:first-child {
         border-radius: 1rem 0 0 1rem;
@@ -330,8 +330,49 @@
       .restricted-width {
         max-width: 600px;
       }
+      .timeline-wrapper {
+        margin-top: 1rem;
+      }
+      .timeline-wrapper, .timeline {
+        flex-flow: column nowrap;
+        align-items: center;
+        list-style-type: none;
+      }
+      .timeline-role {
+        width: 95%;
+        flex-flow: row nowrap;
+        justify-content: space-between;
+        margin: 0 1rem 1rem 1rem;
+      }
+      .timeline-skills {
+        display: flex;
+        flex-flow: row wrap;
+        gap: 0.5rem;
+        list-style-type: none;
+        justify-content: center;
+      }
+      .timeline-skill {
+        padding: 0.3rem 0.5rem;
+        border-radius: 0.4rem;
+        border: 0;
+        color: black;
+      }
+      .what {
+        font-weight: bold;
+      }
+      .when {
+        display: flex;
+        flex-flow: row nowrap;
+        align-self: center;
+      }
+      .spacer {
+        margin: 0 0.5rem;
+      }
       @media (max-width: 750px) {
         .view-as {
+          flex-direction: column;
+        }
+        .timeline-role {
           flex-direction: column;
         }
         tr {
@@ -457,6 +498,19 @@
         return skills;
       }
 
+      const decorateRows = (rawRows, skills) => {
+        const roles = {...rawRows};
+
+        skills.forEach(s => {
+          s.roles.forEach(r => {
+            if (!roles[r].skills) { roles[r].skills = [] };
+            roles[r].skills.push(s);
+          });
+        });
+
+        return roles;
+      }
+
       const nameSort = (a, b) => { return b.value < a.value };
       const reverseNameSort = (a, b) => { return a.value < b.value };
       const descendingYearSort = (a, b) => { return b.duration - a.duration };
@@ -465,7 +519,6 @@
       /** sorts an array of skills for better display as a table */
       const sortSkills = (newSkills) => {
         const initialSort = newSkills.sort(nameSort);
-        console.log(initialSort)
         return initialSort.sort(descendingYearSort);
       }
 
@@ -508,7 +561,7 @@
 
       /** represents a single selected skill with more info than displayed in the tag cloud */
       const DetailedSkill = (props) => {
-        const { color, roles, value, duration, isSelected, handleClickCb } = props;
+        const { color, roles, value, duration, isSelected, handleClickCb, rolesMetadata } = props;
         const isYearsPlural = duration !== 1;
         const hasRoles = roles && roles.length > 0;
         const handleClearClick = () => {
@@ -530,7 +583,9 @@
                   </div>
                   <ul className="detail-list">
                     {roles.map(r => (
-                      <li key={r}>{r}</li>
+                      <li key={r}>
+                        {`${rolesMetadata[r].title} (${rolesMetadata[r].company})`}
+                      </li>
                     ))}
                   </ul>
                 </>
@@ -545,7 +600,7 @@
        * (shape changes on every page load)
        */
       const SkillsCloud = (props) => {
-        const { skills } = props;
+        const { skills, roles: rolesMetadata } = props;
         const [detailedSkill, setDetailedSkill] = useState({});
 
         const updateDetailed = useCallback((skill) => {
@@ -554,7 +609,11 @@
 
         return (
             <div>
-              <DetailedSkill {...detailedSkill} handleClickCb={updateDetailed} />
+              <DetailedSkill
+                {...detailedSkill}
+                handleClickCb={updateDetailed}
+                rolesMetadata={rolesMetadata}
+              />
               <ul className="skills">
                 {skills.map(s => (
                   <SkillTag
@@ -571,7 +630,7 @@
 
       /** displays a single skill row in the table*/
       const SkillRow = (props) => {
-        const { value, roles, duration } = props;
+        const { value, roles, duration, rolesMetadata } = props;
 
         return (
           <tr className='skill'>
@@ -582,7 +641,9 @@
                 <summary className='roles-button '>View roles</summary>
                 <ul className="detail-list">
                   {roles.map(r => (
-                    <li key={r}>{r}</li>
+                    <li key={r}>
+                      {`${rolesMetadata[r].title} (${rolesMetadata[r].company})`}
+                    </li>
                   ))}
                 </ul>
               </details>
@@ -603,7 +664,7 @@
        * (not affected by page load)
        */
       const SkillsTable = (props) => {
-        const { skills } = props;
+        const { skills, roles: rolesMetadata } = props;
         const [sortedSkills, setSortedSkills] = useState([...skills]);
         const [currentSort, setCurrentSort] = useState(YEARS_DESCENDING);
         // const [displayedRoles, setDisplayedRoles] = useState([]);
@@ -705,7 +766,7 @@
                 </thead>
                 <tbody>
                   {sortedSkills.map(s => (
-                    <SkillRow key={s.value} {...s} />
+                    <SkillRow key={s.value} {...s} rolesMetadata={rolesMetadata} />
                   ))}
                 </tbody>
               </table>
@@ -721,9 +782,73 @@
         </div>
       )
 
+      const Timeline = (props) => {
+        const { skills, roles: rawRoles } = props;
+        const [selectedSkill, setSelectedSkill] = useState(null);
+        const [displayedRoles, setDisplayedRoles] = useState(Object.values(rawRoles));
+        const allRoles = Object.values(rawRoles);
+
+        const handleButtonClick = useCallback((skill) => {
+          if (selectedSkill === skill) {
+            setSelectedSkill(null);
+          } else {
+            setSelectedSkill(skill);
+          }
+        });
+
+        useEffect(() => {
+          const roles = [...allRoles].filter(r => {
+            if (selectedSkill === null) return true;
+            return r.skills.includes(selectedSkill);
+          });
+          setDisplayedRoles(roles);
+        }, [selectedSkill]);
+
+        return (
+          <div className="timeline-wrapper flex-gap-one">
+            <h2>Total Displayed Roles ({displayedRoles.length})</h2>
+            <p>
+              {
+                selectedSkill === null
+                  ? 'Click on a skill to filter matching roles.'
+                  : `Currently showing roles matching: ${selectedSkill.value}. Total years of experience: ${selectedSkill.duration}.`
+              }
+            </p>
+            <ul className="timeline flex-gap-half">
+              {displayedRoles.map(r => (
+                <li className="timeline-role" key={r.company}>
+                  <div className="timeline-role flex-gap-one">
+                    <div className="what">{r.title}</div>
+                    <div className="where">{r.company}</div>
+                    <div className="when">
+                      <div>{r.from}</div>
+                      <div className="spacer">-</div>
+                      <div>{r.to}</div>
+                    </div>
+                  </div>
+                  <ul className="timeline-skills">
+                    {r.skills.map(s => (
+                      <li key={s.value}>
+                        <button
+                          className={`timeline-skill ${s.color}-background`}
+                          onClick={() => handleButtonClick(s)}
+                        >
+                          {s.value}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      }
+
       /** fetches & displays skills */
       const Skills = () => {
         const [skills, setSkills] = useState([]);
+        const [roles, setRoles] = useState({});
         const isLackingAnySkills = skills.length === 0;
         const [view, setView] = useState('loading');
 
@@ -733,6 +858,7 @@
         const setCloud = () => setSelectedView('cloud');
         const setInfo = () => setSelectedView('info');
         const setTable = () => setSelectedView('table');
+        const setTimeline = () => setSelectedView('timeline');
 
         const SkillsView = useMemo(() => {
           switch (view) {
@@ -742,23 +868,30 @@
               return SkillsTable;
             case 'info':
               return InfoView;
+            case 'timeline':
+              return Timeline;
             default:
               return LoadingView;
           }
         }, [view]);
 
         useEffect(() => {
-          fetch('https://sojeri.github.io/better-linkedin-skills/skills.json')
+          fetch('https://sojeri.github.io/better-linkedin-skills/data/skills.json')
             .then(response => {
               if (response.ok) {
                 return response.json();
               }
             })
             .then(data => {
-              const decorated = decorateSkills(data);
+              const { metadata: rawRoles, skills: rawSkills } = data;
+              
+              const decorated = decorateSkills(rawSkills, roles);
               const shuffled = shuffleSkills(decorated);
               setSkills(shuffled);
               setView('cloud');
+
+              const roles = decorateRows(rawRoles, decorated);
+              setRoles(rawRoles);
             })
             .catch(e => {
               console.log('alas, I failed to load ye');
@@ -782,13 +915,18 @@
                   className={view === 'table' && 'selected-view'}
                 >structured table</button>
                 <button
+                  onClick={setTimeline}
+                  role="radio"
+                  className={view === 'timeline' && 'selected-view'}
+                >timeline</button>
+                <button
                   onClick={setInfo}
                   role="radio"
                   className={view === 'info' && 'selected-view'}
                 >about page</button>
               </div>
             </div>
-            <SkillsView skills={skills} />
+            <SkillsView skills={skills} roles={roles} />
           </>
         ) 
       }

@@ -5,36 +5,52 @@ const fs = require('fs');
  */
 const metadata = {
   one: {
-    name: "Abridge (Senior Software Engineer)",
-    from: "2024", to: "2026", years: 1.7,
+    title: "Senior Software Engineer",
+    company: "Abridge AI",
+    roleType: "tech",
+    from: "8/2024", to: "4/2026", years: 1.7,
   },
   two: {
-    name: "Spotify (Software Engineer)",
-    from: "2021", to: "2024", years: 2.8,
+    title: "Software Engineer",
+    company: "Spotify",
+    roleType: "tech",
+    from: "6/2021", to: "3/2024", years: 2.8,
   },
   three: {
-    name: "Truss (Senior Software Engineer)",
-    from: "2019", to: "2021", years: 2.1,
+    title: "Senior Software Engineer",
+    company: "Truss",
+    roleType: "tech",
+    from: "2/2019", to: "3/2021", years: 2.1,
   },
   four: {
-    name: "Microsoft (Software Engineer II)",
-    from: "2015", to: "2018", years: 2.6,
+    title: "Software Engineer II",
+    company: "Microsoft",
+    roleType: "tech",
+    from: "12/2015", to: "6/2018", years: 2.6,
   },
   five: {
-    name: "UW PCE (Extension Lecturer / TA)",
-    from: "2016", to: "2017", years: 0.6,
+    title: "Extension Lecturer / TA",
+    company: "University of Washington PCE",
+    roleType: "tech",
+    from: "9/2016", to: "4/2017", years: 0.6,
   },
   six: {
-    name: "Ada Developers Academy (Full Stack Software Engineering Student)",
-    from: "2015", to: "2016", years: 1,
+    title: "Full Stack Software Engineering Student",
+    company: "Ada Developers Academy",
+    roleType: "student",
+    from: "5/2015", to: "4/2016", years: 1,
   },
   seven: {
-    name: "Indy Stealth Logistics (Office Assistant Manager)",
+    title: "Office Assistant Manager",
+    company: "Indy Stealth Logistics",
+    roleType: "delivery / hospitality",
     from: "2014", to: "2015", years: 1,
   },
   eight: {
-    name: "Emerald City Pizza (Restaurant General Manager)",
-    from: "shhh", to: "2012", years: 4,
+    title: "Restaurant General Manager",
+    company: "Emerald City Pizza",
+    roleType: "delivery / hospitality",
+    from: "2008", to: "2012", years: 4,
   }
 };
 
@@ -54,7 +70,7 @@ const metadata = {
  * { ..., roles: ["some place where I did it", "other place where I did it"] }
  *
  */
-function getAggregateSkills(isMildlyAnon = false) {
+function getAggregateSkills() {
   let rawData, data;
 
   try {
@@ -68,8 +84,8 @@ function getAggregateSkills(isMildlyAnon = false) {
   data.forEach((row, rowIndex) => {
     try {
       const { skill, role: rawRole } = row;
-      const role = isMildlyAnon ? rawRole : metadata[rawRole].name;
-      const roleTerm = isMildlyAnon ? 2 : metadata[rawRole].years;
+      const role = rawRole;
+      const roleTerm = metadata[rawRole].years;
       if (output[skill] === undefined) {
         output[skill] = { value: skill, count: 1, roles: [ role ], duration: roleTerm };
       } else {
@@ -85,13 +101,16 @@ function getAggregateSkills(isMildlyAnon = false) {
   return Object.values(output);
 }
 
+/** prepares the raw JSON for being saved to a file */
 function getSkillsAsStrings() {
   const rawSkills = getAggregateSkills();
-  const rawMildlyAnonymousSkills = getAggregateSkills(true);
-  let skills, mildlyAnonymousSkills;
+  let skills;
   try {
-    skills = JSON.stringify(rawSkills);
-    mildlyAnonymousSkills = JSON.stringify(rawMildlyAnonymousSkills);
+    skills = JSON.stringify({
+      skills: rawSkills,
+      metadata,
+    });
+
   } catch (e) {
     console.error('FATAL: unfortunately I was somehow unable to JSON stringify raw JS object[]');
     throw e;
@@ -99,19 +118,16 @@ function getSkillsAsStrings() {
 
   return {
     rawSkills,
-    rawMildlyAnonymousSkills,
     skills,
-    mildlyAnonymousSkills,
   }
 }
 
-/** */
+/** pulls the skills data and saves it to file */
 function saveAggregateSkills() {
-  const { skills, mildlyAnonymousSkills } = getSkillsAsStrings();
+  const { skills } = getSkillsAsStrings();
 
   try {
-    fs.writeFileSync('../skills.json', skills);
-    fs.writeFileSync('./mildly-anon-skills.json', mildlyAnonymousSkills);
+    fs.writeFileSync('./skills.json', skills);
   } catch (e) {
     console.error('FATAL: oh noes ;_; I failed to save the skills');
     throw e;
