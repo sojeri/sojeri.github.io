@@ -26,10 +26,22 @@
         height: 100%;
         width: 100%;
       }
-      noscript, main {
+      .margin-one {
+        margin: 1rem 0;
+      }
+      .flex-gap-one {
         display: flex;
-        flex-flow: column nowrap;
         gap: 1rem;
+      }
+      .margin-half {
+        margin: 0.5rem 0;
+      }
+      .flex-gap-half {
+        display: flex;
+        margin: 0.5rem 0;
+      }
+      noscript, main {
+        flex-flow: column nowrap;
         justify-content: center;
         font-family: sans-serif;
         padding: 0.5rem;
@@ -56,6 +68,9 @@
       a:visited {
         color: coral;
       }
+      nav {
+        margin: 0.5rem 0;
+      }
       .summary-links {
         display: flex;
         flex-flow: row wrap;
@@ -65,6 +80,7 @@
       }
       i { /* handling for font awesome logos */        
         padding-right: 0.3rem;
+        color: inherit;
       }
       .summary-links a {
         background: aqua;
@@ -229,11 +245,12 @@
         border: 0;
         cursor: pointer;
         margin: 0.1rem;
+        min-width: 150px;
       }
       .view-buttons-wrapper button:first-child {
         border-radius: 1rem 0 0 1rem;
       }
-      .view-buttons-wrapper button:last-child{
+      .view-buttons-wrapper button:last-child {
         border-radius: 0 1rem 1rem 0;
       }
       .selected-view {
@@ -241,7 +258,7 @@
         background: coral;
       }
       .table-container {
-        max-height: 80vh;
+        max-height: 98vh;
         overflow: scroll;
       }
       table {
@@ -253,33 +270,98 @@
         position: sticky;
         top: 0;
         background: black;
+        color: white;
+      }
+      thead button {
+        border: 0;
+        border-bottom: 0.1rem dashed aquamarine;
+        cursor: pointer;
+        background: black;
         color: aquamarine;
+        font-size: 1rem;
+        font-weight: bold;
+        min-width: 200px;
       }
       tr:nth-child(even) {
         background: #122;
       }
+      tr:nth-child(odd) {
+        color: #ddf;
+      }
       td,th {
         padding: 0.3rem;
       }
+      td {
+        text-wrap: balance;
+      }
+      .roles-wrapper {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .restricted-width-small {
+        width: 300px;
+      }
       .roles-button {
         background: inherit;
+        font-size: 1rem;
+        font-weight: normal;
         color: inherit;
         border: 0;
-        border-bottom: 0.2rem dotted white;
         width: 300px;
         cursor: pointer;
+        text-align: center;
+      }
+      .details-summary {
+        border: 0.1rem solid white;
+        border-radius: 1rem;
+        margin: 0.5rem 0.2rem;
+        padding: 0.3rem;
+      }
+      summary {
+        font-size: 1.3rem;
+        font-weight: bold;
+      }
+      .restricted-width-wrapper {
+        display: flex;
+        justify-content: center;
+        margin-top: 3rem;
+      }
+      .restricted-width {
+        max-width: 600px;
+      }
+      @media (max-width: 750px) {
+        .view-as {
+          flex-direction: column;
+        }
+        tr {
+          display: flex;
+          flex-flow: column nowrap;
+        }
+        td:first-child {
+          font-weight: bold;
+        }
+      }
+      @media (max-width: 500px) {
+        .view-buttons-wrapper {
+          flex-direction: column;
+        }
+        .view-buttons-wrapper button {
+          /* :first/last child selector is more specific */
+          border-radius: 1rem !important;
+        }
       }
     </style>
   </head>
   <body>
-    <noscript>
+    <noscript className="flex-gap-one">
       <p>I'm sorry, you need to enable JavaScript to view this page.</p>
       <p>It is a React app.</p>
       <p>🐍</p>
       <p><a href="https://sojeri.github.io/">sojeri.github.io</a></p>
     </noscript>
     <script type="text/babel">
-      const { useState, useCallback, useEffect } = React;
+      const { useCallback, useEffect, useMemo, useState } = React;
 
       /** shuffles an array of skills for better display as a tag cloud */
       const shuffleSkills = (newSkills) => {
@@ -341,8 +423,10 @@
         const skills = rawSkills.map(rawSkill => {
           const skill = { ...rawSkill };
 
-          // round year down because js float math got ugly 😂
+          // round year because js float math got ugly 😂
+          const shouldRoundUp = (skill.duration % 1) >= 0.5;
           skill.duration = Math.floor(skill.duration);
+          if (shouldRoundUp) skill.duration += 1;
 
           //
           // SIZE
@@ -373,13 +457,35 @@
         return skills;
       }
 
+      const nameSort = (a, b) => { return b.value < a.value };
+      const reverseNameSort = (a, b) => { return a.value < b.value };
+      const descendingYearSort = (a, b) => { return b.duration - a.duration };
+      const ascendingYearSort = (a, b) => { return a.duration - b.duration };
 
       /** sorts an array of skills for better display as a table */
       const sortSkills = (newSkills) => {
-        return newSkills.sort((a, b) => {
-          return b.duration - a.duration;
-        });
+        const initialSort = newSkills.sort(nameSort);
+        console.log(initialSort)
+        return initialSort.sort(descendingYearSort);
       }
+
+      const sortByName = (skills) => {
+        return skills.sort(nameSort);
+      };
+
+      const sortByNameReverse = (skills) => {
+        return skills.sort(reverseNameSort);
+      };
+
+      const sortMostExperienceFirst = (skills) => {
+        const initialSort = sortByName(skills);
+        return initialSort.sort(descendingYearSort);
+      };
+
+      const sortLeastExperienceFirst = (skills) => {
+        const initialSort = sortByName(skills);
+        return initialSort.sort(ascendingYearSort);
+      };
 
       /** displays a single skill tag in the tag cloud */
       const SkillTag = (props) => {
@@ -466,31 +572,31 @@
       /** displays a single skill row in the table*/
       const SkillRow = (props) => {
         const { value, roles, duration } = props;
-        const [showRoles, setShowRoles] = useState(false);
-
-        const toggleRoles = () => {
-          setShowRoles(!showRoles)
-        }
 
         return (
           <tr className='skill'>
             <td>{value}</td>
             <td>{duration}</td>
-            <td>
-              <button className='roles-button' onClick={toggleRoles}>
-                View roles
-              </button>
-              {showRoles && (
+            <td className='roles-wrapper'>
+              <details className='restricted-width-small'>
+                <summary className='roles-button '>View roles</summary>
                 <ul className="detail-list">
                   {roles.map(r => (
                     <li key={r}>{r}</li>
                   ))}
                 </ul>
-              )}
+              </details>
             </td>
           </tr>
         )
       }
+
+      const YEARS_ASCENDING = 'years-ascending';
+      const YEARS_DESCENDING = 'years-descending';
+      const NAME_ASCENDING = 'name-ascending';
+      const NAME_DESCENDING = 'name-descending';
+      const YEARS_SORT_BUTTON_NAME = 'years';
+      const NAME_SORT_BUTTON_NAME = 'name';
 
       /**
        * displays skills in a structured table view
@@ -498,36 +604,108 @@
        */
       const SkillsTable = (props) => {
         const { skills } = props;
-        const [sortedSkills, setSortedSkills] = useState([]);
-        const [detailedSkill, setDetailedSkill] = useState({});
+        const [sortedSkills, setSortedSkills] = useState([...skills]);
+        const [currentSort, setCurrentSort] = useState(YEARS_DESCENDING);
+        // const [displayedRoles, setDisplayedRoles] = useState([]);
+
+        const applyCurrentSort = useCallback((skillsToSort = sortedSkills) => {
+          let sortingMethod;
+          switch (currentSort) {
+            case NAME_ASCENDING: {
+              sortingMethod = sortByName;
+              break;
+            }
+            case NAME_DESCENDING: {
+              sortingMethod = sortByNameReverse;
+              break;
+            }
+            case YEARS_ASCENDING:
+              sortingMethod = sortLeastExperienceFirst;
+              break;
+            case YEARS_DESCENDING: {}
+            default: {
+              sortingMethod = sortMostExperienceFirst;
+            }
+          }
+          const newlySorted = sortingMethod(skillsToSort);
+          setSortedSkills([...newlySorted]);
+        });
 
         useEffect(() => {
-          const sorted = sortSkills([...skills]);
-          setSortedSkills(sorted);
-        }, []);
+          applyCurrentSort();
+        }, [currentSort]);
 
-        const updateDetailed = useCallback((skill) => {
-          setDetailedSkill(skill.isSelected ? {} : skill);
-        });
+        // useEffect(() => {
+        //   const unfilteredSkills = [...skills];
+        //   const filteredSkills = filterByRole(unfilteredSkills, displayedRoles);
+        //   applyCurrentSort(filteredSkills);
+        // }, [displayedRoles]);
+
+        // const filterByRole = useMemo((skillsToFilter, rolesToMatch) => {
+        //   if (rolesToMatch.length === 0) return skillsToFilter;
+
+        //   return skillsToFilter.map(skill => {
+        //     let includes = false;
+        //     const roles = skill.roles;
+        //     for (let role of roles) {
+        //       if (rolesToMatch.includes(role)) {
+        //         includes = true;
+        //         break;
+        //       }
+        //     }
+        //     return includes;
+        //   });
+        // }, [rolesToMatch]);
+
+        const handleButtonClick = (whichButton) => {
+          let nextSort;
+          switch (whichButton) {
+            case YEARS_SORT_BUTTON_NAME: {
+              nextSort = currentSort === YEARS_DESCENDING
+                ? YEARS_ASCENDING
+                : YEARS_DESCENDING;
+              break;
+            }
+            case NAME_SORT_BUTTON_NAME: {
+              nextSort = currentSort === NAME_ASCENDING
+                ? NAME_DESCENDING
+                : NAME_ASCENDING;
+              break;
+            }
+          }
+
+          if (nextSort !== undefined) {
+            setCurrentSort(nextSort)
+          };
+        }
+        const onClickYear = () => handleButtonClick(YEARS_SORT_BUTTON_NAME);
+        const onClickName = () => handleButtonClick(NAME_SORT_BUTTON_NAME);
 
         return (
             <div className="table-container">
               <table>
                 <thead>
                   <tr>
-                    <th>Skill</th>
-                    <th>Years Experience</th>
+                    <th>
+                      <button onClick={onClickName}>
+                        {currentSort === NAME_DESCENDING && <i class="fa fa-arrow-down" alt="descending"></i>}
+                        {currentSort === NAME_ASCENDING && <i class="fa fa-arrow-up" alt="ascending"></i>}
+                        Skill
+                      </button>
+                    </th>
+                    <th>
+                      <button onClick={onClickYear}>
+                        {currentSort === YEARS_DESCENDING && <i class="fa fa-arrow-down" alt="descending"></i>}
+                        {currentSort === YEARS_ASCENDING && <i class="fa fa-arrow-up" alt="ascending"></i>}
+                        Years Experience
+                      </button>
+                    </th>
                     <th>Associated Roles</th>
                   </tr>
                 </thead>
                 <tbody>
                   {sortedSkills.map(s => (
-                    <SkillRow
-                      key={s.value}
-                      {...s}
-                      handleClickCb={updateDetailed}
-                      isSelected={detailedSkill.value === s.value}
-                    />
+                    <SkillRow key={s.value} {...s} />
                   ))}
                 </tbody>
               </table>
@@ -535,19 +713,39 @@
           )
       }
 
+      const LoadingView = () => (
+        <div className="margin-one">
+          <p>
+            Loading skills...
+          </p>
+        </div>
+      )
+
       /** fetches & displays skills */
       const Skills = () => {
         const [skills, setSkills] = useState([]);
         const isLackingAnySkills = skills.length === 0;
-        const [view, setView] = useState('cloud');
+        const [view, setView] = useState('loading');
 
         const setSelectedView = useCallback((view) => {
-          if (view === 'cloud' || view === 'table') {
-            setView(view);
-          }
+          setView(view);
         });
         const setCloud = () => setSelectedView('cloud');
+        const setInfo = () => setSelectedView('info');
         const setTable = () => setSelectedView('table');
+
+        const SkillsView = useMemo(() => {
+          switch (view) {
+            case 'cloud':
+              return SkillsCloud;
+            case 'table':
+              return SkillsTable;
+            case 'info':
+              return InfoView;
+            default:
+              return LoadingView;
+          }
+        }, [view]);
 
         useEffect(() => {
           fetch('https://sojeri.github.io/better-linkedin-skills/skills.json')
@@ -560,6 +758,7 @@
               const decorated = decorateSkills(data);
               const shuffled = shuffleSkills(decorated);
               setSkills(shuffled);
+              setView('cloud');
             })
             .catch(e => {
               console.log('alas, I failed to load ye');
@@ -567,74 +766,92 @@
             })
         }, []);
 
-        return isLackingAnySkills
-          ? (
-            <div>Loading skills...</div>
-          ) : (
-            <>
-              <div className='view-as'>
-                <div>View skills as:</div>
-                <div className='view-buttons-wrapper'>
-                  <button
-                    onClick={setCloud}
-                    role="radio"
-                    className={view === 'cloud' && 'selected-view'}
-                  >tag cloud</button>
-                  <button
-                    onClick={setTable}
-                    role="radio"
-                    className={view === 'table' && 'selected-view'}
-                  >structured table</button>
-                </div>
+        return (
+          <>
+            <div className='view-as'>
+              <div>View as:</div>
+              <div className='view-buttons-wrapper'>
+                <button
+                  onClick={setCloud}
+                  role="radio"
+                  className={view === 'cloud' && 'selected-view'}
+                >tag cloud</button>
+                <button
+                  onClick={setTable}
+                  role="radio"
+                  className={view === 'table' && 'selected-view'}
+                >structured table</button>
+                <button
+                  onClick={setInfo}
+                  role="radio"
+                  className={view === 'info' && 'selected-view'}
+                >about page</button>
               </div>
-              {
-                view === 'cloud'
-                ? <SkillsCloud skills={skills} />
-                : <SkillsTable skills={skills} />
-              }
-            </>
-          ) 
+            </div>
+            <SkillsView skills={skills} />
+          </>
+        ) 
       }
 
       const HeaderLinks = () => (
-        <ul class="summary-links">
-          <li>
-            <a href="https://www.linkedin.com/in/sojeri">
-              <i class="fa fa-linkedin" alt=""></i>
-              LinkedIn
-            </a>
-          </li>
-          <li>
-            <a href="https://sojeri.github.io/better-linkedin-skills">
-              <i class="fa fa-linkedin" alt=""></i>
-              Better LinkedIn Skills (you are already here)
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/sojeri">
-              <i class="fa fa-github" alt=""></i>
-              GitHub
-            </a>
-          </li>
-          <li>
-            <a href="https://sojeri.github.io">
-              <i class="fa fa-desktop" alt=""></i>
-              Landing Page
-            </a>
-          </li>
-          <li>
-            <a href="https://sojeri.github.io/developer-story">
-              <i class="fa fa-stack-overflow" alt=""></i>
-              Developer Story
-            </a>
-          </li>
-        </ul>
+        <details>
+          <summary>
+            Who is Jeri Sommers?
+          </summary>
+          <div class="details-summary">
+            <nav>
+              <ul class="summary-links">
+                <li>
+                  <a href="https://www.linkedin.com/in/sojeri">
+                    <i class="fa fa-linkedin" alt=""></i>
+                    LinkedIn
+                  </a>
+                </li>
+                <li>
+                  <a href="https://sojeri.github.io/better-linkedin-skills">
+                    <i class="fa fa-linkedin" alt=""></i>
+                    Better LinkedIn Skills (you are already here)
+                  </a>
+                </li>
+                <li>
+                  <a href="https://github.com/sojeri">
+                    <i class="fa fa-github" alt=""></i>
+                    GitHub
+                  </a>
+                </li>
+                <li>
+                  <a href="https://sojeri.github.io">
+                    <i class="fa fa-desktop" alt=""></i>
+                    Landing Page
+                  </a>
+                </li>
+                <li>
+                  <a href="https://sojeri.github.io/developer-story">
+                    <i class="fa fa-stack-overflow" alt=""></i>
+                    Developer Story
+                  </a>
+                </li>
+              </ul>
+            </nav>
+            <p>
+              Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives. Huge fan of clouds.
+            </p>
+          </div>
+        </details>
+      )
+
+      const InfoView = () => (
+        <div className="margin-one restricted-width-wrapper">
+          <p className="restricted-width">
+            I created this page because I don't believe LinkedIn  profiles do a great job of showcasing where someone's true expertise lies. As far as I can tell, the skills feature is primarily for <abbr title="Search Engine Optimization">SEO</abbr>, not for directly highlighting expertise. Even though LinkedIn already has data like how long a person has been in a given role and which skills they list across multiple roles, they don't seem to put effort into visualizing that data. So I built my own skills visualizer here.
+          </p>
+        </div>
       )
 
       const BetterLinkedInSkills = () => {
         return (
-          <main>
-            <h1>🐍 Jeri Sommers | Better LinkedIn Skills</h1>
+          <main className="flex-gap-one">
+            <h1>🐍 Better LinkedIn Skills</h1>
             <HeaderLinks />
             <div aria-live='polite'>
               <Skills />
