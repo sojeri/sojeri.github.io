@@ -347,6 +347,12 @@
         border: 0;
         color: black;
       }
+      .larger {
+        font-size: 1.1rem;
+      }
+      .bold {
+        font-weight: bold;
+      }
       .what {
         font-weight: bold;
       }
@@ -394,7 +400,10 @@
 
       /** displays a single skill tag in the tag cloud */
       const SkillTag = (props) => {
-        const { size, color, value, duration, isSelected, handleClickCb } = props;
+        const {
+          size, color, value, duration, isSelected,
+          handleClickCb, additionalClassNames = '',
+      } = props;
         const handleButtonClick = () => {
           handleClickCb(props);
         }
@@ -404,7 +413,7 @@
             <button            
               role="radio"
               aria-checked={isSelected}
-              className={`skill ${size} ${color} ${isSelected && 'selected'}`}
+              className={`skill ${size} ${color} ${isSelected && 'selected'} ${additionalClassNames}`}
               onClick={handleButtonClick}
             >{value}</button>
           </li>
@@ -677,6 +686,33 @@
         </div>
       )
 
+      const SkillButton = (props) => {
+        const { color, value, size, handleClickCb } = props;
+        const getSizeClassName = () => {
+          switch (size) {
+            case 'XL':
+            case 'L':
+              return 'larger bold';
+            case 'M':
+              return 'bold';
+            default:
+              return ''
+          }
+        }
+        const sizeClassName = getSizeClassName();
+
+        return (
+          <li>
+            <button
+              className={`timeline-skill ${color}-background ${sizeClassName}`}
+              onClick={handleClickCb}
+            >
+              {value}
+            </button>
+          </li>
+        )
+      }
+
       /**
        * reverse chronological display of skills, more like a CV.
        * has role headers above associated skill lists.
@@ -688,13 +724,25 @@
         const [displayedRoles, setDisplayedRoles] = useState(Object.values(rawRoles));
         const allRoles = Object.values(rawRoles);
 
-        const handleButtonClick = useCallback((skill) => {
+        const resetSkillFilter = () => setSelectedSkill(null);
+
+        const handleSkillClick = useCallback((skill) => {
           if (selectedSkill === skill) {
-            setSelectedSkill(null);
+            resetSkillFilter();
           } else {
             setSelectedSkill(skill);
           }
         });
+
+        const rolesDisplayHeader = useMemo(() => {
+          if (selectedSkill === null) {
+            return `Displaying all roles (${displayedRoles.length})`;
+          }
+
+          const roleWord = displayedRoles.length === 1 ? 'role' : 'roles';
+
+          return `Displaying ${roleWord} (${displayedRoles.length}) with skill`;
+        }, [selectedSkill, displayedRoles.length]);
 
         useEffect(() => {
           const roles = [...allRoles].filter(r => {
@@ -706,12 +754,24 @@
 
         return (
           <div className="timeline-wrapper column flex-gap-one">
-            <h2>Total Displayed Roles ({displayedRoles.length})</h2>
-            <p>
+            <h2>
+              {rolesDisplayHeader}
+              {
+                selectedSkill !== null && (
+                  <SkillTag
+                    {...selectedSkill}
+                    size='S'
+                    handleClickCb={resetSkillFilter}
+                    additionalClassNames="bold"
+                  />
+                )
+              }
+            </h2>
+            <p className="larger">
               {
                 selectedSkill === null
-                  ? 'Click on a skill to filter matching roles.'
-                  : `Currently showing roles matching: ${selectedSkill.value}. Total years of experience: ${selectedSkill.duration}.`
+                  ? 'Click on a skill below to filter matching roles'
+                  : `Total years of experience: ${selectedSkill.duration}`
               }
             </p>
             <ul className="timeline column flex-gap-half">
@@ -728,14 +788,12 @@
                   </div>
                   <ul className="timeline-skills row-wrap">
                     {r.skills.map(s => (
-                      <li key={s.value}>
-                        <button
-                          className={`timeline-skill ${s.color}-background`}
-                          onClick={() => handleButtonClick(s)}
-                        >
-                          {s.value}
-                        </button>
-                      </li>
+                      <SkillButton
+                        {...s}
+                        handleClickCb={() => {
+                          handleSkillClick(s)
+                        }}
+                      />
                     ))}
                   </ul>
                 </li>
@@ -811,8 +869,17 @@
         const four = max - step;
         const three = four - step;
         const colors = [
-          'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'grey',
-          'beige', 'anothergreen', 'anotherblue',
+          'anotherblue',
+          'beige', // second color is currently where snake lands
+          'grey', // it needs something with better color contrast
+          'anothergreen',
+          'blue',
+          'indigo',
+          'green',
+          'orange',
+          'red',
+          'violet',
+          'yellow',
         ];
         let currentColor = 0;
         const skills = rawSkills.map(rawSkill => {
