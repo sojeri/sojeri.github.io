@@ -40,8 +40,19 @@
         display: flex;
         gap: 0.5rem 0;
       }
-      noscript, main {
+      .column {
+        display: flex;
         flex-flow: column nowrap;
+      }
+      .row {
+        display: flex;
+        flex-flow: row nowrap;
+      }
+      .row-wrap {
+        display: flex;
+        flex-flow: row wrap;
+      }
+      noscript, main {
         justify-content: center;
         font-family: sans-serif;
         padding: 0.5rem;
@@ -72,8 +83,6 @@
         margin: 0.5rem 0;
       }
       .summary-links {
-        display: flex;
-        flex-flow: row wrap;
         justify-content: center;
         gap: 0.8rem;
         list-style: none;
@@ -92,8 +101,6 @@
         font-size: 0.8rem;
       }
       .skills {
-        display: flex;
-        flex-flow: row wrap;
         list-style-type: none;
         align-items: center;
         justify-content: center;
@@ -171,7 +178,6 @@
         color: beige;
       }
       .beige-background {
-
         background: beige;
       }
       .anothergreen {
@@ -196,8 +202,6 @@
         margin: 0.5rem 0;
       }
       .detail-header {
-        display: flex;
-        flex-flow: row nowrap;
         justify-content: space-between;
         align-items: center;
         cursor: pointer;
@@ -215,30 +219,20 @@
         font-size: 1rem;
         max-width: 300px;
         height: auto;
-        display: flex;
-        flex-flow: column nowrap;
       }
       .detail-list {
         background-color: #ccc;
         color: #000;
         padding: 0.3rem;
-        display: flex;
-        flex-flow: column nowrap;
         gap: 0.4rem;
         list-style-type: none;
         max-width: 300px;
       }
       .view-as {
-        display: flex;
-        flex-flow: row nowrap;
         gap: 0.5rem;
         margin: auto;
         justify-content: center;
         align-items: center;
-      }
-      .view-buttons-wrapper {
-        display: flex;
-        flex-flow: row nowrap;
       }
       .view-buttons-wrapper button {
         padding: 0.5rem;
@@ -334,19 +328,15 @@
         margin-top: 1rem;
       }
       .timeline-wrapper, .timeline {
-        flex-flow: column nowrap;
         align-items: center;
         list-style-type: none;
       }
       .timeline-role {
         width: 95%;
-        flex-flow: row nowrap;
         justify-content: space-between;
         margin: 0 1rem 1rem 1rem;
       }
       .timeline-skills {
-        display: flex;
-        flex-flow: row wrap;
         gap: 0.5rem;
         list-style-type: none;
         justify-content: center;
@@ -361,8 +351,6 @@
         font-weight: bold;
       }
       .when {
-        display: flex;
-        flex-flow: row nowrap;
         align-self: center;
       }
       .spacer {
@@ -395,7 +383,7 @@
     </style>
   </head>
   <body>
-    <noscript className="flex-gap-one">
+    <noscript className="flex-gap-one column">
       <p>I'm sorry, you need to enable JavaScript to view this page.</p>
       <p>It is a React app.</p>
       <p>🐍</p>
@@ -403,142 +391,6 @@
     </noscript>
     <script type="text/babel">
       const { useCallback, useEffect, useMemo, useState } = React;
-
-      /** shuffles an array of skills for better display as a tag cloud */
-      const shuffleSkills = (newSkills) => {
-        const shuffled = [...newSkills];
-        const size = newSkills.length;
-
-        for (let i = 0; i < size * 2; i++) {
-          const firstIndex = Math.floor(Math.random() * size);
-          const secondIndex = Math.floor(Math.random() * size);
-          if (firstIndex !== secondIndex) {
-            const first = shuffled[firstIndex];
-            shuffled[firstIndex] = shuffled[secondIndex];
-            shuffled[secondIndex] = first;
-          }
-        }
-        
-        return shuffled;
-      }
-
-      /**
-       * calculates some high level stats about a collection of skills
-       * - min
-       * - max
-       * - step
-       */
-      const calculateStats = (skills) => {
-        const size = skills.length;
-        let min = Number.POSITIVE_INFINITY;
-        let max = Number.NEGATIVE_INFINITY;
-        
-        skills.forEach(skill => {
-          const { count } = skill;
-          max = count > max ? count : max;
-          min = count < min ? count : min;
-        })
-
-        const step = Math.floor((max - min) / 5);
-        return { min, max, step };
-      }
-
-      /**
-       * adds additional display props to skills
-       * - size
-       * - color
-       * 
-       * & normalizes duration
-       */
-      const decorateSkills = (rawSkills) => {
-        const { min, max, step } = calculateStats(rawSkills);
-        const one = min + step;
-        const two = one + step;
-        const four = max - step;
-        const three = four - step;
-        const colors = [
-          'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'grey',
-          'beige', 'anothergreen', 'anotherblue',
-        ];
-        let currentColor = 0;
-        const skills = rawSkills.map(rawSkill => {
-          const skill = { ...rawSkill };
-
-          // round year because js float math got ugly 😂
-          const shouldRoundUp = (skill.duration % 1) >= 0.5;
-          skill.duration = Math.floor(skill.duration);
-          if (shouldRoundUp) skill.duration += 1;
-
-          //
-          // SIZE
-          //
-          const { count } = skill;
-          if (count > four) {
-            skill.size = 'XL';
-          } else if (count > three) {
-            skill.size = 'L';
-          } else if (count > two) {
-            skill.size = 'M';
-          } else if (count > one) {
-            skill.size = 'S';
-          } else {
-            skill.size = 'XS';
-          }
-
-          //
-          // COLOR
-          //
-          skill.color = colors[currentColor];
-          currentColor += 1;
-          currentColor = currentColor < colors.length ? currentColor : 0;
-
-          return skill;
-        });
-
-        return skills;
-      }
-
-      const decorateRows = (rawRows, skills) => {
-        const roles = {...rawRows};
-
-        skills.forEach(s => {
-          s.roles.forEach(r => {
-            if (!roles[r].skills) { roles[r].skills = [] };
-            roles[r].skills.push(s);
-          });
-        });
-
-        return roles;
-      }
-
-      const nameSort = (a, b) => { return b.value < a.value };
-      const reverseNameSort = (a, b) => { return a.value < b.value };
-      const descendingYearSort = (a, b) => { return b.duration - a.duration };
-      const ascendingYearSort = (a, b) => { return a.duration - b.duration };
-
-      /** sorts an array of skills for better display as a table */
-      const sortSkills = (newSkills) => {
-        const initialSort = newSkills.sort(nameSort);
-        return initialSort.sort(descendingYearSort);
-      }
-
-      const sortByName = (skills) => {
-        return skills.sort(nameSort);
-      };
-
-      const sortByNameReverse = (skills) => {
-        return skills.sort(reverseNameSort);
-      };
-
-      const sortMostExperienceFirst = (skills) => {
-        const initialSort = sortByName(skills);
-        return initialSort.sort(descendingYearSort);
-      };
-
-      const sortLeastExperienceFirst = (skills) => {
-        const initialSort = sortByName(skills);
-        return initialSort.sort(ascendingYearSort);
-      };
 
       /** displays a single skill tag in the tag cloud */
       const SkillTag = (props) => {
@@ -559,7 +411,7 @@
         )
       }
 
-      /** represents a single selected skill with more info than displayed in the tag cloud */
+      /** represents a single selected skill with more info than is displayed in the tag cloud */
       const DetailedSkill = (props) => {
         const { color, roles, value, duration, isSelected, handleClickCb, rolesMetadata } = props;
         const isYearsPlural = duration !== 1;
@@ -574,14 +426,14 @@
 
         return (
           <div className="detail-wrappper">
-            <div className="detail">
+            <div className="detail column">
               {hasRoles && (
                 <>
-                  <div className={`detail-header ${color}-background`} onClick={handleClearClick}>
+                  <div className={`detail-header row ${color}-background`} onClick={handleClearClick}>
                     <p><strong>{value}</strong> ({duration} year{isYearsPlural && 's'})</p>
                     <button className={`clear ${color}-background`} onClick={handleNestedClearClick}>X</button>
                   </div>
-                  <ul className="detail-list">
+                  <ul className="detail-list column">
                     {roles.map(r => (
                       <li key={r}>
                         {`${rolesMetadata[r].title} (${rolesMetadata[r].company})`}
@@ -614,7 +466,7 @@
                 handleClickCb={updateDetailed}
                 rolesMetadata={rolesMetadata}
               />
-              <ul className="skills">
+              <ul className="skills row-wrap">
                 {skills.map(s => (
                   <SkillTag
                     key={s.value}
@@ -639,7 +491,7 @@
             <td className='roles-wrapper'>
               <details className='restricted-width-small'>
                 <summary className='roles-button '>View roles</summary>
-                <ul className="detail-list">
+                <ul className="detail-list column">
                   {roles.map(r => (
                     <li key={r}>
                       {`${rolesMetadata[r].title} (${rolesMetadata[r].company})`}
@@ -652,12 +504,46 @@
         )
       }
 
+      // SkillsTable constants
       const YEARS_ASCENDING = 'years-ascending';
       const YEARS_DESCENDING = 'years-descending';
       const NAME_ASCENDING = 'name-ascending';
       const NAME_DESCENDING = 'name-descending';
       const YEARS_SORT_BUTTON_NAME = 'years';
       const NAME_SORT_BUTTON_NAME = 'name';
+
+      //
+      // buncha sorts, mostly relevant to SkillsTable
+      //
+
+      const nameSort = (a, b) => { return b.value < a.value };
+      const reverseNameSort = (a, b) => { return a.value < b.value };
+      const descendingYearSort = (a, b) => { return b.duration - a.duration };
+      const ascendingYearSort = (a, b) => { return a.duration - b.duration };
+
+      /** sorts an array of skills for better display as a table */
+      const sortSkills = (newSkills) => {
+        const initialSort = newSkills.sort(nameSort);
+        return initialSort.sort(descendingYearSort);
+      }
+
+      const sortByName = (skills) => {
+        return skills.sort(nameSort);
+      };
+
+      const sortByNameReverse = (skills) => {
+        return skills.sort(reverseNameSort);
+      };
+
+      const sortMostExperienceFirst = (skills) => {
+        const initialSort = sortByName(skills);
+        return initialSort.sort(descendingYearSort);
+      };
+
+      const sortLeastExperienceFirst = (skills) => {
+        const initialSort = sortByName(skills);
+        return initialSort.sort(ascendingYearSort);
+      };
 
       /**
        * displays skills in a structured table view
@@ -774,14 +660,28 @@
           )
       }
 
+      /**
+       * super basic loading view not expected to display for long.
+       * the bulk of page load time is in fetching the in-browser react/babel scripts in the first place.
+       * fetching skills.json after those are in place is very fast,
+       * so this only flashes on the screen for a very short time.
+       */
       const LoadingView = () => (
-        <div className="margin-one">
+        <div className="margin-one flex-gap-one column">
           <p>
             Loading skills...
+          </p>
+          <p>
+            If you have time to read this, something probably went wrong with fetching the skills data. Maybe check the browser console or network tab for errors?
           </p>
         </div>
       )
 
+      /**
+       * reverse chronological display of skills, more like a CV.
+       * has role headers above associated skill lists.
+       * supports filtering by skill to review only relevant history.
+       */
       const Timeline = (props) => {
         const { skills, roles: rawRoles } = props;
         const [selectedSkill, setSelectedSkill] = useState(null);
@@ -805,7 +705,7 @@
         }, [selectedSkill]);
 
         return (
-          <div className="timeline-wrapper flex-gap-one">
+          <div className="timeline-wrapper column flex-gap-one">
             <h2>Total Displayed Roles ({displayedRoles.length})</h2>
             <p>
               {
@@ -814,19 +714,19 @@
                   : `Currently showing roles matching: ${selectedSkill.value}. Total years of experience: ${selectedSkill.duration}.`
               }
             </p>
-            <ul className="timeline flex-gap-half">
+            <ul className="timeline column flex-gap-half">
               {displayedRoles.map(r => (
-                <li className="timeline-role" key={r.company}>
-                  <div className="timeline-role flex-gap-one">
+                <li className="timeline-role column" key={r.company}>
+                  <div className="timeline-role row flex-gap-one">
                     <div className="what">{r.title}</div>
                     <div className="where">{r.company}</div>
-                    <div className="when">
+                    <div className="when row">
                       <div>{r.from}</div>
                       <div className="spacer">-</div>
                       <div>{r.to}</div>
                     </div>
                   </div>
-                  <ul className="timeline-skills">
+                  <ul className="timeline-skills row-wrap">
                     {r.skills.map(s => (
                       <li key={s.value}>
                         <button
@@ -845,38 +745,173 @@
         )
       }
 
-      /** fetches & displays skills */
-      const Skills = () => {
+      // BetterLinkedInSkills constants
+      const LOADING_VIEW = 'loading';
+      const TAG_CLOUD_VIEW = 'cloud';
+      const TIMELINE_VIEW = 'timeline';
+      const ABOUT_PAGE_VIEW = 'info';
+      const STRUCTURED_TABLE_VIEW = 'table';
+      const SKILLS_URI = 'https://sojeri.github.io/better-linkedin-skills/data/skills.json';
+
+      //
+      // display helper methods
+      // used by BetterLinkedInSkills after fetching data
+      //
+
+      /** shuffles an array of skills for better display as a tag cloud */
+      const shuffleSkills = (newSkills) => {
+        const shuffled = [...newSkills];
+        const size = newSkills.length;
+
+        for (let i = 0; i < size * 2; i++) {
+          const firstIndex = Math.floor(Math.random() * size);
+          const secondIndex = Math.floor(Math.random() * size);
+          if (firstIndex !== secondIndex) {
+            const first = shuffled[firstIndex];
+            shuffled[firstIndex] = shuffled[secondIndex];
+            shuffled[secondIndex] = first;
+          }
+        }
+        
+        return shuffled;
+      }
+
+      /**
+       * calculates some high level stats about a collection of skills
+       * - min
+       * - max
+       * - step
+       */
+      const calculateStats = (skills) => {
+        const size = skills.length;
+        let min = Number.POSITIVE_INFINITY;
+        let max = Number.NEGATIVE_INFINITY;
+        
+        skills.forEach(skill => {
+          const { count } = skill;
+          max = count > max ? count : max;
+          min = count < min ? count : min;
+        })
+
+        const step = Math.floor((max - min) / 5);
+        return { min, max, step };
+      }
+
+      /**
+       * adds additional display props to skills
+       * - size
+       * - color
+       * 
+       * & normalizes duration
+       */
+      const decorateSkills = (rawSkills) => {
+        const { min, max, step } = calculateStats(rawSkills);
+        const one = min + step;
+        const two = one + step;
+        const four = max - step;
+        const three = four - step;
+        const colors = [
+          'red', 'orange', 'yellow', 'green', 'blue', 'indigo', 'violet', 'grey',
+          'beige', 'anothergreen', 'anotherblue',
+        ];
+        let currentColor = 0;
+        const skills = rawSkills.map(rawSkill => {
+          const skill = { ...rawSkill };
+
+          // round year because js float math got ugly 😂
+          const shouldRoundUp = (skill.duration % 1) >= 0.5;
+          skill.duration = Math.floor(skill.duration);
+          if (shouldRoundUp) skill.duration += 1;
+
+          //
+          // SIZE
+          //
+          const { count } = skill;
+          if (count > four) {
+            skill.size = 'XL';
+          } else if (count > three) {
+            skill.size = 'L';
+          } else if (count > two) {
+            skill.size = 'M';
+          } else if (count > one) {
+            skill.size = 'S';
+          } else {
+            skill.size = 'XS';
+          }
+
+          //
+          // COLOR
+          //
+          skill.color = colors[currentColor];
+          currentColor += 1;
+          currentColor = currentColor < colors.length ? currentColor : 0;
+
+          return skill;
+        });
+
+        return skills;
+      }
+
+      /**
+       * adds additional display props to rows.
+       * for best display results, pass in already-decorated skills.
+       */
+      const decorateRows = (rawRows, decoratedSkills) => {
+        const roles = {...rawRows};
+
+        // inject skills onto rows
+        decoratedSkills.forEach(s => {
+          s.roles.forEach(r => {
+            if (!roles[r].skills) { roles[r].skills = [] };
+            roles[r].skills.push(s);
+          });
+        });
+
+        // randomize order of skills for more interesting display
+        const roleKeys = Object.keys(roles);
+        roleKeys.forEach(r => {
+          const shuffled = shuffleSkills(roles[r].skills);
+          roles[r].skills = shuffled;
+        });
+
+        return roles;
+      }
+
+      /**
+       * high level component which fetches the skills data
+       * & handles the logic of which view is actually displayed.
+       */
+      const BetterLinkedInSkills = () => {
         const [skills, setSkills] = useState([]);
         const [roles, setRoles] = useState({});
-        const isLackingAnySkills = skills.length === 0;
-        const [view, setView] = useState('loading');
+        const [view, setView] = useState(LOADING_VIEW);
 
         const setSelectedView = useCallback((view) => {
           setView(view);
         });
-        const setCloud = () => setSelectedView('cloud');
-        const setInfo = () => setSelectedView('info');
-        const setTable = () => setSelectedView('table');
-        const setTimeline = () => setSelectedView('timeline');
+        const setCloud = () => setSelectedView(TAG_CLOUD_VIEW);
+        const setInfo = () => setSelectedView(ABOUT_PAGE_VIEW);
+        const setTable = () => setSelectedView(STRUCTURED_TABLE_VIEW);
+        const setTimeline = () => setSelectedView(TIMELINE_VIEW);
 
         const SkillsView = useMemo(() => {
           switch (view) {
-            case 'cloud':
+            case TAG_CLOUD_VIEW:
               return SkillsCloud;
-            case 'table':
+            case STRUCTURED_TABLE_VIEW:
               return SkillsTable;
-            case 'info':
+            case ABOUT_PAGE_VIEW:
               return InfoView;
-            case 'timeline':
+            case TIMELINE_VIEW:
               return Timeline;
+            case LoadingView:
             default:
               return LoadingView;
           }
         }, [view]);
 
         useEffect(() => {
-          fetch('https://sojeri.github.io/better-linkedin-skills/data/skills.json')
+          fetch(SKILLS_URI)
             .then(response => {
               if (response.ok) {
                 return response.json();
@@ -888,41 +923,42 @@
               const decorated = decorateSkills(rawSkills, roles);
               const shuffled = shuffleSkills(decorated);
               setSkills(shuffled);
-              setView('cloud');
 
               const roles = decorateRows(rawRoles, decorated);
               setRoles(rawRoles);
+
+              setView(TAG_CLOUD_VIEW);
             })
             .catch(e => {
-              console.log('alas, I failed to load ye');
-              throw e;
+              console.error('alas, I failed to load ye', {error: e});
+              setView(LOADING_VIEW);
             })
         }, []);
 
         return (
           <>
-            <div className='view-as'>
+            <div className='view-as row'>
               <div>View as:</div>
-              <div className='view-buttons-wrapper'>
+              <div className='view-buttons-wrapper row'>
                 <button
                   onClick={setCloud}
                   role="radio"
-                  className={view === 'cloud' && 'selected-view'}
+                  className={view === TAG_CLOUD_VIEW && 'selected-view'}
                 >tag cloud</button>
                 <button
                   onClick={setTable}
                   role="radio"
-                  className={view === 'table' && 'selected-view'}
+                  className={view === STRUCTURED_TABLE_VIEW && 'selected-view'}
                 >structured table</button>
                 <button
                   onClick={setTimeline}
                   role="radio"
-                  className={view === 'timeline' && 'selected-view'}
+                  className={view === TIMELINE_VIEW && 'selected-view'}
                 >timeline</button>
                 <button
                   onClick={setInfo}
                   role="radio"
-                  className={view === 'info' && 'selected-view'}
+                  className={view === ABOUT_PAGE_VIEW && 'selected-view'}
                 >about page</button>
               </div>
             </div>
@@ -931,6 +967,7 @@
         ) 
       }
 
+      /** basic nav with links to learn more about me */
       const HeaderLinks = () => (
         <details>
           <summary>
@@ -938,7 +975,7 @@
           </summary>
           <div class="details-summary">
             <nav>
-              <ul class="summary-links">
+              <ul class="summary-links row-wrap">
                 <li>
                   <a href="https://www.linkedin.com/in/sojeri">
                     <i class="fa fa-linkedin" alt=""></i>
@@ -978,6 +1015,10 @@
         </details>
       )
 
+      /**
+       * the about page view which explains why I built this.
+       * TODO: replace the abbr with something that actually works on mobile, :facepalm:
+       */
       const InfoView = () => (
         <div className="margin-one restricted-width-wrapper">
           <p className="restricted-width">
@@ -986,19 +1027,19 @@
         </div>
       )
 
-      const BetterLinkedInSkills = () => {
+      const PageLayout = () => {
         return (
-          <main className="flex-gap-one">
+          <main className="flex-gap-one column">
             <h1>🐍 Better LinkedIn Skills</h1>
             <HeaderLinks />
             <div aria-live='polite'>
-              <Skills />
+              <BetterLinkedInSkills />
             </div>
           </main>
         );
       };
 
-      ReactDOM.render(<BetterLinkedInSkills />, document.getElementById("root"));
+      ReactDOM.render(<PageLayout />, document.getElementById("root"));
     </script>
     <div id="root"></div>
   </body>
