@@ -12,8 +12,7 @@ __10/2026:__
   (still needs filter work)
 - add timeline view with filtering by skill
   (still needs styling work)
-- add theme switcher to landing page
-  (still TODO for the new skills page)
+- add theme switcher to landing & skills pages
 
 __9/2026:__
 - fix solutons typo ;_;
