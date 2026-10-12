@@ -113,7 +113,7 @@
       a:visited {
         color: var(--secondary-button);
       }
-      button, summary {
+      button, summary, select {
         cursor: pointer;
       }
       nav {
@@ -377,6 +377,15 @@
         justify-content: space-between;
         margin: 0 1rem 1rem 1rem;
       }
+      .timeline-role-header {
+        background: var(--primary-button);
+        color: var(--primary-background);
+        justify-content: space-between;
+        padding: 0.5rem 1rem;
+      }
+      .timeline-role:nth-child(even) > .timeline-role-header {
+        background: var(--secondary-button);
+      }
       .timeline-skills {
         gap: 0.5rem;
         list-style-type: none;
@@ -386,7 +395,6 @@
         padding: 0.3rem 0.5rem;
         border-radius: 0.4rem;
         border: 0;
-        color: var(--primary-background);
       }
       .larger {
         font-size: 1.1rem;
@@ -404,7 +412,7 @@
         .view-as {
           flex-direction: column;
         }
-        .timeline-role {
+        .timeline-role, .timeline-role-header {
           flex-direction: column;
         }
         tr {
@@ -742,7 +750,7 @@
         return (
           <li>
             <button
-              className={`timeline-skill ${color}-background ${sizeClassName}`}
+              className={`timeline-skill ${color} ${sizeClassName}`}
               onClick={handleClickCb}
             >
               {value}
@@ -814,8 +822,8 @@
             </p>
             <ul className="timeline column flex-gap-half">
               {displayedRoles.map(r => (
-                <li className="timeline-role column" key={r.company}>
-                  <div className="timeline-role row flex-gap-one">
+                <li className="timeline-role flex-gap-one column" key={r.company}>
+                  <div className="timeline-role-header row flex-gap-one">
                     <div className="what">{r.title}</div>
                     <div className="where">{r.company}</div>
                     <div className="when row">

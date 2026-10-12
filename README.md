@@ -11,7 +11,6 @@ __10/2026:__
 - add tableview (with sorting!) for people who prefer structured views
   (still needs filter work)
 - add timeline view with filtering by skill
-  (still needs styling work)
 - add theme switcher to landing & skills pages
 
 __9/2026:__
