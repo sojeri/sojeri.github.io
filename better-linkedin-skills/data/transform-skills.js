@@ -53,6 +53,103 @@ const metadata = {
     from: "2008", to: "2012", years: 4,
   }
 };
+//
+// utils for crafting the story skills metadata
+//
+
+/** get rough years of experience */
+const getStoryObjDuration = (obj) => {
+  const start = obj?.start;
+  const end = obj?.end;
+  const objType = obj?.type;
+  if (objType === 'project') return 0.25;
+
+  let duration;
+  if (end !== 'Present') {
+    duration = end?.year - start?.year;
+  } else {
+    duration = new Date().getFullYear() - start?.year;
+  }
+
+  if (Number.isNaN(duration)) {
+    duration = 0.5;
+  }
+
+  return duration === 0 ? 0.25 : duration;
+}
+
+/** get rough date string for from/to fields */
+const getDateString = (field={}) => {
+  if (typeof field === 'string') return field;
+
+  const { month, year } = field;
+  if (month !== undefined && year !== undefined) {
+    return `${month}/${year}`;
+  }
+  if (year !== undefined) {
+    return `${year}`;
+  }
+
+  return 'A TIME UNKNOWN';
+}
+
+/** get role info with separate title/company where possible */
+const getRoleInfo = (obj) => {
+  const title = obj?.title;
+  const objType = obj?.type;
+  let adjustedTitle, adjustedCompany;
+
+  if (title.indexOf(' at ') > -1) {
+    const titleParts = title.split(' at ');
+    const [role, company] = titleParts;
+    if (role?.length) {
+      adjustedTitle = role;
+    }
+    if (company?.length) {
+      adjustedCompany = company;
+    }
+  }
+
+  if (adjustedTitle === undefined) {
+    adjustedTitle = title;
+  }
+
+  if (adjustedCompany === undefined) {
+    switch (objType) {
+      case 'project':
+        adjustedCompany = 'Side Project';
+        break;
+      case 'education':
+        adjustedCompany = 'Ada Developers Academy';
+        break;
+      default:
+        adjustedCompany = 'A COMPANY UNKNOWN';
+    }
+  }
+
+  return {
+    adjustedTitle,
+    adjustedCompany,
+  }
+}
+
+/** calculate full role metadata for a story role */
+const getRoleMetadata = (obj) => {
+  const start = obj?.start;
+  const end = obj?.end;
+  const duration = getStoryObjDuration(obj);
+  const adjustedStart = getDateString(start);
+  const adjustedEnd = getDateString(end);
+  const {adjustedCompany, adjustedTitle} = getRoleInfo(obj);
+
+  return {
+    title: adjustedTitle,
+    company: adjustedCompany,
+    from: adjustedStart,
+    to: adjustedEnd,
+    years: duration,
+  }
+}
 
 /**
  * imports the raw skills data and transform it as needed:
@@ -71,16 +168,20 @@ const metadata = {
  *
  */
 function getAggregateSkills() {
-  let rawData, data;
+  let rawData, rawStoryData, data, storyData;
 
   try {
     rawData = fs.readFileSync('./data.json', { encoding: 'utf8' });
+    rawStoryData = fs.readFileSync('./story-data.json', { encoding: 'utf8' });
     data = JSON.parse(rawData);
+    storyData = JSON.parse(rawStoryData);
   } catch (e) {
     console.error('FATAL: alas, I cannae find the file or parse it to JSON');
     throw e;
   }
   const output = {};
+  const storyOutput = {};
+  const storyMetadata = {};
   data.forEach((row, rowIndex) => {
     try {
       const { skill, role: rawRole } = row;
@@ -98,19 +199,63 @@ function getAggregateSkills() {
       throw e;
     }
   });
-  return Object.values(output);
+
+  storyData.forEach((obj, objIndex) => {
+    const objType = obj?.type;
+    if (
+      objType === 'metadata'
+      || objType === 'summary'
+      || objType === 'achievement'
+      || objType === 'title'
+    ) return;
+
+    try {
+      const skills = obj?.skills || [];
+      const title = obj?.title || '';
+
+      const roleMetadata = getRoleMetadata(obj);
+      const { years: duration, title: roleName, } = roleMetadata;
+      storyMetadata[roleName] = roleMetadata;
+
+      // ignore data irrelevant to skills cloud
+      if (skills === undefined || skills.length === 0) {
+        return;
+      }
+
+      skills.forEach(skill => {
+        if (storyOutput[skill] === undefined) {
+          storyOutput[skill] = { value: skill, count: 1, roles: [ roleName ], duration };
+        } else {
+          storyOutput[skill].count += 1;
+          storyOutput[skill].duration += duration;
+          storyOutput[skill].roles.push(roleName);
+        }
+      })
+    } catch (e) {
+      console.error('FATAL: I failed to read and transform the developer story skills ;_;\n', obj, objIndex);
+      throw e;
+    }
+  })
+  return {
+    rawSkills: Object.values(output),
+    rawStorySkills: Object.values(storyOutput),
+    storyMetadata,
+  };
 }
 
 /** prepares the raw JSON for being saved to a file */
 function getSkillsAsStrings() {
-  const rawSkills = getAggregateSkills();
-  let skills;
+  const { rawSkills, rawStorySkills, storyMetadata } = getAggregateSkills();
+  let skills, storySkills;
   try {
     skills = JSON.stringify({
       skills: rawSkills,
       metadata,
     });
-
+    storySkills = JSON.stringify({
+      skills: rawStorySkills,
+      metadata: storyMetadata,
+    });
   } catch (e) {
     console.error('FATAL: unfortunately I was somehow unable to JSON stringify raw JS object[]');
     throw e;
@@ -119,17 +264,26 @@ function getSkillsAsStrings() {
   return {
     rawSkills,
     skills,
+    rawStorySkills,
+    storySkills,
   }
 }
 
 /** pulls the skills data and saves it to file */
 function saveAggregateSkills() {
-  const { skills } = getSkillsAsStrings();
+  const { skills, storySkills } = getSkillsAsStrings();
 
   try {
     fs.writeFileSync('./skills.json', skills);
   } catch (e) {
     console.error('FATAL: oh noes ;_; I failed to save the skills');
+    throw e;
+  }
+
+  try {
+    fs.writeFileSync('./story-skills.json', storySkills);
+  } catch (e) {
+    console.error('FATAL: oh noes ;_; I failed to save the developer story skills');
     throw e;
   }
 }

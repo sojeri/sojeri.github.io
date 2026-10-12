@@ -496,7 +496,7 @@
         return (
           <tr className='skill'>
             <td>{value}</td>
-            <td>{duration}</td>
+            <td>{duration === 0 ? 'a few months' : duration}</td>
             <td className='roles-wrapper'>
               <details className='restricted-width-small'>
                 <summary className='roles-button '>View roles</summary>
@@ -920,13 +920,13 @@
       }
 
       /**
-       * adds additional display props to rows.
+       * adds additional display props to roles.
        * for best display results, pass in already-decorated skills.
        */
-      const decorateRows = (rawRows, decoratedSkills) => {
-        const roles = {...rawRows};
+      const decorateRoles = (rawRoles, decoratedSkills) => {
+        const roles = {...rawRoles};
 
-        // inject skills onto rows
+        // inject skills onto roles
         decoratedSkills.forEach(s => {
           s.roles.forEach(r => {
             if (!roles[r].skills) { roles[r].skills = [] };
@@ -991,7 +991,7 @@
               const shuffled = shuffleSkills(decorated);
               setSkills(shuffled);
 
-              const roles = decorateRows(rawRoles, decorated);
+              const roles = decorateRoles(rawRoles, decorated);
               setRoles(rawRoles);
 
               setView(TAG_CLOUD_VIEW);
