@@ -6,6 +6,13 @@ to be honest, there's not much going on here.
 
 ### CHANGELOG
 
+__11/2026:__
+- migrate bell timer app from my old work github
+- push more work samples to assets
+- update developer story with both of the above
+- tweak metadata on pages (add favicon, add website meta tag, update about me summary)
+- poke sitemap, mostly so bells app can be caught in SEO
+
 __10/2026:__
 - add linkedin skills cloud because I hate the current linkedin UX
 - add tableview (with sorting!) for people who prefer structured views

@@ -3,11 +3,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="author" content="🐍 Jeri Sommers" />
-    <meta name="description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Software Engineer | Ex-Spotify, Ex-Microsoft | Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives." />
-    <meta property="og:description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Software Engineer | Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives." />
+    <meta name="author" content="🐍 Jeri Sommers | Senior Full Stack Engineer | React, TypeScript" />
+    <meta name="description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Full Stack Engineer | React, TypeScript | Full stack software engineer with 10+ years building accessible, mission-critical workflow automation and web applications across healthcare, consumer, and government environments. Skilled at breaking complex and ambiguous product requirements into scalable and reliable technical solutions and working with design and product to build delightful experiences. Deeply passionate about end user experience and building software to improve human lives." />
+    <meta property="og:description" content="🐍 Jeri Sommers's Better LinkedIn Skills. Senior Full Stack Engineer | React, TypeScript | Full stack software engineer with 10+ years building accessible, mission-critical workflow automation and web applications across healthcare, consumer, and government environments. Skilled at breaking complex and ambiguous product requirements into scalable and reliable technical solutions and working with design and product to build delightful experiences. Deeply passionate about end user experience and building software to improve human lives." />
     <meta property="og:image" content="https://sojeri.github.io/img/sojeri-side-project-cloud-technology-101-static.jpg" />
     <meta property="og:title" content="🐍 Jeri Sommers | Better LinkedIn Skills" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://sojeri.github.io/better-linkedin-skills" />
+    <link rel="icon" type="image/jpeg" href="../favicon.jpg">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" />
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -336,6 +339,9 @@
       }
       .restricted-width-small {
         width: 300px;
+      }
+      .the-question {
+        margin-top: 1.5rem;
       }
       .roles-button {
         background: inherit;
@@ -1075,6 +1081,7 @@
                 >about page</button>
               </div>
             </div>
+            <h2 className='the-question'>What is Jeri's expertise?</h2>
             <SkillsView skills={skills} roles={roles} />
           </>
         ) 
@@ -1122,7 +1129,7 @@
               </ul>
             </nav>
             <p>
-              Full stack software engineer with 10+ years building reliable systems in complex, regulated, fast-moving environments (health tech, civic tech, B2B and B2C enterprise experience). Skilled in agile processes, full stack development, and breaking complex and ambiguous product requirements into scalable and reliable technical solutions. Deeply passionate about user experience and building software to improve human lives. Huge fan of clouds.
+              Full stack software engineer with 10+ years building accessible, mission-critical workflow automation and web applications across healthcare, consumer, and government environments. Skilled at breaking complex and ambiguous product requirements into scalable and reliable technical solutions and working with design and product to build delightful experiences. Deeply passionate about end user experience and building software to improve human lives. Huge fan of clouds.
             </p>
           </div>
         </details>
@@ -1135,7 +1142,7 @@
       const InfoView = () => (
         <div className="margin-one restricted-width-wrapper">
           <p className="restricted-width">
-            I created this page because I don't believe LinkedIn  profiles do a great job of showcasing where someone's true expertise lies. As far as I can tell, the skills feature is primarily for <abbr title="Search Engine Optimization">SEO</abbr>, not for directly highlighting expertise. Even though LinkedIn already has data like how long a person has been in a given role and which skills they list across multiple roles, they don't seem to put effort into visualizing that data. So I built my own skills visualizer here.
+            I created this page because I don't believe LinkedIn profiles do a great job of showcasing where someone's true expertise lies. As far as I can tell, the skills feature is primarily for <abbr title="Search Engine Optimization">SEO</abbr>, not for directly highlighting expertise. Even though LinkedIn already has data like how long a person has been in a given role and which skills they list across multiple roles, they don't seem to put effort into visualizing that data. So I built my own skills visualizer here.
           </p>
         </div>
       )
