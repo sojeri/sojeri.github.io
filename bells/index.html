@@ -23,30 +23,52 @@
       --base-color: hsl(24, 100%, 50%);
       --dark: hsl(from var(--base-color) h s calc(l - 35));
       --dark: contrast-color(var(--base-color));
+      --dark-alt: hsl(from var(--base-color) calc(h + 190) calc(s - 25) calc(l - 40));
       --accent: hsl(from var(--base-color) calc(h + 10) s calc(l + 14));
       --accent-alt: hsl(from var(--base-color) calc(h + 20) calc(s - 8) calc(l + 5));
-      --foreground: hsl(from var(--base-color) h calc(s - 25) calc(l - 20));
-      --foreground-medium: hsl(from var(--foreground) h s l / 0.65);
+      --foreground: hsl(from var(--base-color) h mod(calc(s - 25), 80) mod(calc(l - 20), 40));
+      --foreground-medium: hsl(from var(--foreground) h s l / 0.75);
       --foreground-light: hsl(from var(--foreground) h s l / 0.35);
-      --foreground-lightgrey: hsl(from var(--base-color) h calc(s - 15) calc(l - 20) / 0.4);
+      --foreground-lightgrey: hsl(from var(--base-color) h calc(s - 15) mod(calc(l - 20), 50) / 0.4);
       --contrast: hsl(from var(--base-color) calc(h + 20) s calc(l + 40));
       --contrast-alt: hsl(from var(--contrast) calc(h - 3) calc(s - 10) calc(l - 15));
       --contrast-medium: hsl(from var(--contrast) h s l / 0.65);
       --contrast-light: hsl(from var(--contrast) h s l / 0.45);
-      --shadow:
-        1rem -1rem 2rem var(--contrast-alt),
+      --shadow: 1rem -1rem 2rem var(--contrast-alt),
         -1rem 1rem 2rem var(--contrast-alt),
         1rem 1rem 2rem var(--contrast),
         -1rem -1rem 2rem var(--contrast);
+      --text-shadow: var(var(--shadow));
+      --default-link-background: transparent;
+      --default-link-foreground: var(--contrast);
+      --link-background: var(--default-link-background);
+      --link-foreground: var(--default-link-foreground);
+      --link-hover-background: var(--contrast-medium);
+      --link-hover-foreground: var(--dark-alt);
+      --default-button-background: var(--foreground-medium);
+      --default-button-foreground: var(--contrast);
+      --button-background: var(--default-button-background);
+      --button-foreground: var(--default-button-foreground);
+      --default-timer-background: var(--contrast-light);
+      --default-timer-foreground: var(--foreground);
+      --timer-background: var(--default-timer-background);
+      --timer-foreground: var(--default-timer-foreground);
+      --default-text-color: var(--foreground);
+      --default-contrast-color: contrast-color(var(--base-color));
+      --text-color: var(--default-text-color);
     }
     /*
       ORIG COLORS
       props to https://colordesigner.io/convert/hextohsl
       for helping me convert my original hex
-
+      
       base: #ff6801
       hsl(24.33, 100%, 50.2%)
       rgb(255, 104, 1)
+      
+      link: #1c64cf
+      hsl(215.87, 76.17%, 46.08%)
+      rgb(28, 100, 207)
 
       accent: #ffb347
       hsl(35.22, 100%, 63.92%)
@@ -74,6 +96,7 @@
       width: 100%;
       height: 100%;
       overflow: auto;
+      filter: contrast(100%);
     }
     
     body {
@@ -81,11 +104,11 @@
       background-color: var(--base-color);
       background-color: var(--accent);
       background-image: linear-gradient(319deg, var(--accent) 0%, var(--base-color) 37%, var(--accent-alt) 100%);
-      color: var(--foreground);
+      color: var(--text-color);
     }
 
     h1, p {
-      text-shadow: var(--shadow);
+      text-shadow: var(--text-shadow);
     }
 
     h1 {
@@ -163,8 +186,8 @@
     }
 
     .create-btn {
-      color: var(--contrast);
-      background: var(--foreground-medium);
+      color: var(--button-foreground);
+      background: var(--button-background);
       border: none;
       border-radius: 4px;
       padding: 0.35rem 0.9rem;
@@ -178,8 +201,6 @@
     .lorge {
       font-size: 1.5rem;
       letter-spacing: 0.1rem;
-      color: var(--contrast);
-      background: var(--foreground-medium);
     }
 
     .add-btns {
@@ -213,6 +234,7 @@
       user-select: none;
       padding: 0.5rem;
       background-color: var(--contrast-medium);
+      color: contrast-color(var(--contrast-medium));
     }
 
     .close-panel-btn {
@@ -235,7 +257,8 @@
       display: flex;
       align-items: center;
       gap: 0.8rem;
-      background: var(--contrast-light);
+      color: var(--timer-foreground);
+      background: var(--timer-background);
       border: 1px solid var(--foreground-light);
       border-radius: 6px;
       padding: 0.4rem 0.8rem;
@@ -255,12 +278,17 @@
       flex-grow: 1;
     }
 
-    #color-selector {
+    .theme-setting {
       display: flex;
       flex-flow: row nowrap;
       gap: 0.5rem;
-      width: 300px;
+      width: 350px;
       align-self: center;
+      align-items: center;
+    }
+
+    .theme-setting:last-of-type {
+      margin-bottom: 1rem;
     }
     
     .theme-label {
@@ -273,6 +301,11 @@
     input[type="color"] {
       cursor: pointer;
       border-radius: 4px;
+    }
+
+    input[type="checkbox"] {
+      height: 1.4rem;
+      width: 1.4rem;
     }
 
     .stop-btn:hover {
@@ -312,13 +345,10 @@
       align-items: center;
       justify-content: center;
       text-align: center;
-      gap: 2.5rem;
-      padding: 0.4rem 1rem;
+      gap: 1rem;
       background: var(--foreground-lightgrey);
       backdrop-filter: blur(4px);
       font-weight: bold;
-      text-wrap: balance;
-      text-wrap: pretty;
     }
 
     #menu-trigger {
@@ -331,18 +361,28 @@
     }
 
     nav a, #menu-trigger {
-      color: var(--contrast);
+      background: var(--link-background);
+      color: var(--link-foreground);
       text-decoration: none;
+      padding: 0.4rem;
+      border-radius: 0.4rem;
+    }
+    
+    nav a:hover, #menu-trigger:hover, nav a:focus, #menu-trigger:focus, .link-hover {
+      background: var(--link-hover-background);
+      color: var(--link-hover-foreground);
     }
 
-    nav a:hover, #menu-trigger:hover {
-      color: var(--foreground);
+    .body-contrast-color-wrapper {
+      color: var(--text-color);
+    }
+
+    .body-contrast-color {
+      color: var(--default-contrast-color);
+    }
+
+    nav a:hover, #menu-trigger:hover, nav a:focus, #menu-trigger:focus {
       text-decoration: underline;
-      text-shadow:
-        1rem -1rem 1.5rem var(--contrast-alt),
-        -1rem 1rem 1.5rem var(--contrast-alt),
-        1rem 1rem 1.5rem var(--contrast),
-        -1rem -1rem 1.5rem var(--contrast);
     }
 
     .bell-info-carousel {
@@ -376,7 +416,7 @@
     }
 
     .bell-info-card a {
-      color: var(--foreground);
+      color: var(--text-color);
     }
 
     .bell-info-card a:hover {
@@ -405,13 +445,19 @@
         width: 100%;
       }
 
-      #global-controls, .add-btns {
+      #global-controls, .add-btns, .theme-setting {
         flex-flow: column nowrap;
         width: 100%;
 
         > button {
           width: 100%;
         }
+      }
+
+      .theme-setting {
+        text-decoration: center;
+        align-items: center;
+        flex-flow: column-reverse;
       }
 
       nav {
@@ -662,6 +708,11 @@
     function setFormValue(id, value) {
       accessDom(id).value = value;
     }
+
+    /** sets the value of a root style selector, eg --base-color */
+    function setBaseStyleValue(rootSelector, newValue) {
+      document.documentElement.style.setProperty(rootSelector, newValue)
+    }
     // #endregion shared DOM utils
 
     // #region shared time utils
@@ -747,10 +798,11 @@
       setPreviewVolume('alarm-preview-player', 0.4);
 
       setFormValue('base-color', '#ff6801');
-    }
-
-    function updateTheme(newBaseColor) {
-      document.documentElement.style.setProperty('--base-color', newBaseColor)
+      updateDropShadows(true);
+      updateButtonStyle(false);
+      updateLinkStyle(false);
+      updateTimerStyle(false);
+      updateBodyColor(false);
     }
 
     document.addEventListener('DOMContentLoaded', resetPageState);
@@ -934,6 +986,57 @@
       renderBellInfo();
     }
     // #endregion bell info pane (learn about the bells)
+
+    // #region theme settings utils
+    function updateTheme(newBaseColor) {
+      setBaseStyleValue('--base-color', newBaseColor)
+    }
+
+    function updateDropShadows(useDropShadow) {
+      let next = 'var(--shadow)'
+      if (!useDropShadow) { next = '0' }
+      setBaseStyleValue('--text-shadow', next)
+    }
+
+    function updateButtonStyle(useLinkStyles) {
+      let nextBackground = 'var(--default-button-background)'
+      let nextForeground = 'var(--default-button-foreground)'
+      if (useLinkStyles) {
+        nextBackground = 'var(--link-hover-background)'
+        nextForeground = 'var(--link-hover-foreground)'
+      }
+      setBaseStyleValue('--button-background', nextBackground)
+      setBaseStyleValue('--button-foreground', nextForeground)
+    }
+
+    function updateLinkStyle(useLinkStyles) {
+      let nextBackground = 'var(--default-link-background)'
+      let nextForeground = 'var(--default-link-foreground)'
+      if (useLinkStyles) {
+        nextBackground = 'var(--link-hover-background)'
+        nextForeground = 'var(--link-hover-foreground)'
+      }
+      setBaseStyleValue('--link-background', nextBackground)
+      setBaseStyleValue('--link-foreground', nextForeground)
+    }
+
+    function updateTimerStyle(useLinkStyles) {
+      let nextBackground = 'var(--default-timer-background)'
+      let nextForeground = 'var(--default-timer-foreground)'
+      if (useLinkStyles) {
+        nextBackground = 'var(--link-hover-background)'
+        nextForeground = 'var(--link-hover-foreground)'
+      }
+      setBaseStyleValue('--timer-background', nextBackground)
+      setBaseStyleValue('--timer-foreground', nextForeground)
+    }
+
+    function updateBodyColor(useContrastColor) {
+      let next = 'var(--default-text-color)'
+      if (useContrastColor) next = 'var(--default-contrast-color)'
+      setBaseStyleValue('--text-color', next)
+    }
+    // #endregion theme settings utils
   </script>
 </head>
 
@@ -982,10 +1085,49 @@
           title="try my current favorite bells"
           aria-controls="active-timers"
         >try preferred bell set</button>
+        <button
+          class="create-btn"
+          onclick="togglePanel('panel-theme-settings')"
+          aria-controls="panel-theme-settings-aria"
+        >theme settings</button>
       </div>
-      <div id="color-selector">
-        <label class="theme-label" for="base-color">want a different theme color?</label>
-        <input type="color" id="base-color" name="base-color" value="#ff6801" onchange="updateTheme(this.value)" />
+      <div id="panel-theme-settings-aria" aria-live="polite">
+        <div class="creator-panel theme-settings" id="panel-theme-settings">
+          <div class="creator-panel-header" onclick="togglePanel('panel-theme-settings')">
+              <h2>update theme settings</h2>
+              <button
+                class="close-panel-btn"
+                onclick="event.stopPropagation(); togglePanel('panel-theme-settings')"
+                title="close theme settings panel"
+                aria-label="close theme settings panel"
+                aria-controls="panel-theme-settings-aria"
+              >❌</button>
+            </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="base-color">want a different theme color?</label>
+            <input type="color" id="base-color" name="base-color" value="#ff6801" onchange="updateTheme(this.value)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="drop-shadow">show text shadows?</label>
+            <input type="checkbox" id="drop-shadow" name="drop-shadow" checked onchange="updateDropShadows(this.checked)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="link-button-style">use <span class="link-hover">link hover colors</span> for buttons?</label>
+            <input type="checkbox" id="link-button-style" name="link-button-style" onchange="updateButtonStyle(this.checked)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="link-timer-style">use <span class="link-hover">link hover colors</span> for timers?</label>
+            <input type="checkbox" id="link-timer-style" name="link-timer-style" onchange="updateTimerStyle(this.checked)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="link-style">use <span class="link-hover">link hover colors</span> for nav links (always)?</label>
+            <input type="checkbox" id="link-style" name="link-style" onchange="updateLinkStyle(this.checked)" />
+          </div>
+          <div class="theme-setting body-contrast-color-wrapper">
+            <label class="theme-label" for="body-contrast-style">use <span class="body-contrast-color">contrast color</span> for most other text?</label>
+            <input type="checkbox" id="body-contrast-style" name="body-contrast-style" onchange="updateBodyColor(this.checked)" />
+          </div>
+        </div>
       </div>
       <div id="panel-periodic-aria" aria-live="polite">
         <div class="creator-panel periodic" id="panel-periodic">
