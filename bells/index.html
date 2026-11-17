@@ -19,6 +19,10 @@
       box-sizing: border-box;
     }
 
+    body, .timer-creator {
+      transition: background 2s, background-color 2s, background-image 2s;
+    }
+
     :root {
       --base-color: hsl(24, 100%, 50%);
       --dark: hsl(from var(--base-color) h s calc(l - 35));
@@ -282,7 +286,7 @@
       display: flex;
       flex-flow: row nowrap;
       gap: 0.5rem;
-      width: 350px;
+      width: 390px;
       align-self: center;
       align-items: center;
     }
@@ -428,6 +432,16 @@
       font-size: 1rem;
       line-height: 1.5rem;
       text-shadow: none;
+    }
+
+    .color-change-warning {
+      font-size: 1rem;
+      line-height: normal;
+      text-shadow: none;
+      margin: 1rem;
+      margin-top: 0;
+      text-wrap: balance;
+      text-wrap: pretty;
     }
 
     @media (max-width: 500px) {
@@ -694,6 +708,13 @@
       return document.getElementById(id);
     }
 
+    /** grab an element from the DOM, updates a property on it, and fires a change event */
+    function changeDom(id, propName, newProp) {
+      const element = accessDom(id);
+      element[propName] = newProp;
+      element.dispatchEvent(new Event('change'));
+    }
+
     /** toggles the open state of a panel (opens/closes it) */
     function togglePanel(id) {
       accessDom(id).classList.toggle('open');
@@ -797,12 +818,7 @@
       setFormValue('alarm-time', '');
       setPreviewVolume('alarm-preview-player', 0.4);
 
-      setFormValue('base-color', '#ff6801');
-      updateDropShadows(true);
-      updateButtonStyle(false);
-      updateLinkStyle(false);
-      updateTimerStyle(false);
-      updateBodyColor(false);
+      loadPresetTheme('fiery-goodness');
     }
 
     document.addEventListener('DOMContentLoaded', resetPageState);
@@ -1036,6 +1052,97 @@
       if (useContrastColor) next = 'var(--default-contrast-color)'
       setBaseStyleValue('--text-color', next)
     }
+    
+    function savePresetTheme(theme) {
+      changeDom('base-color', 'value', theme.baseColor)
+      changeDom('drop-shadow', 'checked', theme.useDropShadow)
+      changeDom('link-button-style', 'checked', theme.useButtonLinkStyles)
+      changeDom('link-style', 'checked', theme.useLinkHoverAlways)
+      changeDom('link-timer-style', 'checked', theme.useTimerLinkStyles)
+      changeDom('body-contrast-style', 'checked', theme.useBodyContrast)
+    }
+
+    const DEFAULT_THEME = {
+      baseColor: '#ff6801',
+      useDropShadow: true,
+      useLinkHoverAlways: false,
+      useButtonLinkStyles: false,
+      useTimerLinkStyles: false,
+      useBodyContrast: false,
+    }
+
+    function loadPresetTheme(name) {
+      switch (name) {
+        case 'white': {
+          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ffffff', useDropShadow: false, })
+        }
+        case 'eggplant': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#460046',
+            useDropShadow: false,
+            useButtonLinkStyles: true,
+            useTimerLinkStyles: true,
+            useBodyContrast: true,
+          })
+        }
+        case 'red': {
+          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ce7878' })
+        }
+        case 'bright-green': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#82ff46',
+            updateDropShadows: false,
+          })
+        }
+        case 'green': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#00823c',
+            useButtonLinkStyles: true,
+          })
+        }
+        case 'teal': {
+          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#007864' })
+        }
+        case 'blue': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#0000ff',
+            useDropShadow: false,
+            useTimerLinkStyles: true,
+            useBodyContrast: true,
+          })
+        }
+        case 'sky-blue': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#1ec8ff',
+            useButtonLinkStyles: true,
+            useTimerLinkStyles: true,
+            useBodyContrast: true,
+          })
+        }
+        case 'lavender': {
+          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#7d7dff' })
+        }
+        case 'cotton-candy': {
+          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ffb4ff' })
+        }
+        case 'polished-leather': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#824000',
+            useDropShadow: false,
+            useButtonLinkStyles: true,
+            useBodyContrast: true,
+          })
+        }
+      }
+
+      return savePresetTheme(DEFAULT_THEME)
+    }
     // #endregion theme settings utils
   </script>
 </head>
@@ -1094,15 +1201,36 @@
       <div id="panel-theme-settings-aria" aria-live="polite">
         <div class="creator-panel theme-settings" id="panel-theme-settings">
           <div class="creator-panel-header" onclick="togglePanel('panel-theme-settings')">
-              <h2>update theme settings</h2>
-              <button
-                class="close-panel-btn"
-                onclick="event.stopPropagation(); togglePanel('panel-theme-settings')"
-                title="close theme settings panel"
-                aria-label="close theme settings panel"
-                aria-controls="panel-theme-settings-aria"
-              >❌</button>
-            </div>
+            <h2>update theme settings</h2>
+            <button
+              class="close-panel-btn"
+              onclick="event.stopPropagation(); togglePanel('panel-theme-settings')"
+              title="close theme settings panel"
+              aria-label="close theme settings panel"
+              aria-controls="panel-theme-settings-aria"
+            >❌</button>
+          </div>
+          <p class="color-change-warning">
+            warning: theme colors are applied in some cases by `background-image`, which is not something CSS can animate changes to at this time.
+            as a result, changing the theme color can be jarrinig as the entire page flashes from the old color to the new one.
+          </p>
+          <div class="theme-setting">
+            <label class="theme-label" for="preset-theme-color">load preset theme?</label>
+            <select id="preset-theme-color" name="preset-theme-color" value="fiery-goodness" onchange="loadPresetTheme(this.value)">
+              <option value="white">White</option>
+              <option value="red">Light Red</option>
+              <option value="cotton-candy">Cotton Candy</option>
+              <option value="lavender">Lavender</option>
+              <option selected value="fiery-goodness">Extremely Orange</option>
+              <option value="bright-green">Bright Green</option>
+              <option value="green">Green</option>
+              <option value="teal">Teal</option>
+              <option value="sky-blue">Blue</option>
+              <option value="blue">What 'Blue' Flowers Usually Look Like</option>
+              <option value="eggplant">Eggplant</option>
+              <option value="polished-leather">Polished Leather</option>
+            </select>
+          </div>
           <div class="theme-setting">
             <label class="theme-label" for="base-color">want a different theme color?</label>
             <input type="color" id="base-color" name="base-color" value="#ff6801" onchange="updateTheme(this.value)" />
