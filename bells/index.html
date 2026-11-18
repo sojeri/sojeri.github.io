@@ -162,7 +162,12 @@
       box-shadow: var(--shadow);
       background-color: var(--contrast-light);
       color: var(--dark);
-      margin-bottom: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .timer-creator.minimized {
+      padding: 0;
+      margin-bottom: 0;
     }
 
     .timer-form {
@@ -174,7 +179,7 @@
       padding: 0 0.5rem 0.5rem;
     }
 
-    .timer-form select {
+    select {
       background: var(--contrast-medium);
       border: 1px solid var(--foreground-light);
       border-radius: 4px;
@@ -278,6 +283,7 @@
       }
       .timer-item {
         padding-bottom: 0.2rem;
+        border-radius: 2rem;
       }
     }
 
@@ -506,6 +512,12 @@
       margin-top: 0;
       text-wrap: balance;
       text-wrap: pretty;
+    }
+
+    @media (max-height: 600px) {
+      .content {
+        gap: 1rem;
+      }
     }
 
     @media (max-width: 500px) {
@@ -1218,7 +1230,10 @@
         setBaseStyleValue('--minimizable-height', 0)
         setBaseStyleValue('--reverse-minimizable-visibility', 'visible')
         setBaseStyleValue('--reverse-minimizable-height', 'auto')
-        accessDom('active-timers').classList.add('minimized-children')
+        const timers = accessDom('active-timers')
+        timers.classList.add('minimized-children')
+        accessDom('timer-creator').classList.add('minimized')
+        timers.scrollIntoView()
         return
       }
       
@@ -1227,6 +1242,7 @@
       setBaseStyleValue('--reverse-minimizable-visibility', 'hidden')
       setBaseStyleValue('--reverse-minimizable-height', 0)
       accessDom('active-timers').classList.remove('minimized-children')
+      accessDom('timer-creator').classList.remove('minimized')
     }
     // #endregion minimize handling
     // #region local storage
@@ -1240,7 +1256,7 @@
     <h1 class="minimizable">What even is time????</h1>
     <section>
       <p class="minimizable">Here are some bells to try to help</p>
-      <div class="active-timers minimizable-children" id="active-timers" aria-role="timer"></div>
+      <div class="active-timers" id="active-timers" aria-role="timer"></div>
     </section>
     <div class="minimizable" id="bell-info-aria" aria-role="live-polite">
       <div class="bell-info-carousel" id="bell-info-carousel" hidden>
@@ -1252,7 +1268,7 @@
         <div class="bell-info-card" id="bell-info-card"></div>
       </div>
     </div>
-    <section class="timer-creator minimizable">
+    <section id="timer-creator" class="timer-creator minimizable">
       <div id="global-controls">
         <button class="stop-btn" onclick="stopAll()" aria-controls="active-timers">
           <span class="icon">🚮</span>
