@@ -64,6 +64,12 @@
       --minimizable-height: auto;
       --reverse-minimizable-visibility: hidden;
       --reverse-minimizable-height: 0;
+      --red-close-icon: '❌';
+      --black-close-icon: '✖️';
+      --close-icon: var(--red-close-icon);
+      --paint-splat-icon: '🫟';
+      --paint-palette-icon: '🎨';
+      --theme-icon: var(--paint-splat-icon);
     }
     /*
       ORIG COLORS
@@ -213,6 +219,7 @@
 
     .create-btn:hover {
       background: var(--foreground);
+      color: contrast-color(var(--foreground));
     }
 
     .lorge {
@@ -344,7 +351,7 @@
       display: flex;
       flex-flow: row nowrap;
       gap: 0.5rem;
-      width: 390px;
+      width: 400px;
       align-self: center;
       align-items: center;
     }
@@ -388,6 +395,14 @@
     .larger-text-icon {
       font-size: 2rem;
       margin-right: 0.4rem;
+    }
+
+    .close-icon::before {
+      content: var(--close-icon);
+    }
+
+    .paint-icon::before {
+      content: var(--theme-icon);
     }
 
     .optional {
@@ -505,6 +520,7 @@
     }
 
     .color-change-warning {
+      max-width: 650px;
       font-size: 1rem;
       line-height: normal;
       text-shadow: none;
@@ -548,6 +564,7 @@
         text-decoration: center;
         align-items: center;
         flex-flow: column-reverse;
+        width: auto;
       }
 
       nav {
@@ -807,8 +824,17 @@
     }
 
     /** sets the value of a root style selector, eg --base-color */
-    function setBaseStyleValue(rootSelector, newValue) {
+    function setRootStyle(rootSelector, newValue) {
       document.documentElement.style.setProperty(rootSelector, newValue)
+    }
+
+    /**
+     * conditionally sets the value of a root style selector
+     * @see setRootStyle
+     */
+    function setRootStyleIf({bool, rootStyleName, onTrue, onFalse}) {
+      const next = bool ? onTrue : onFalse;
+      setRootStyle(rootStyleName, next)
     }
     // #endregion shared DOM utils
 
@@ -1021,7 +1047,7 @@
       item.innerHTML =
         `<span class="minimizable-text">${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
         `<span id="countdown-${ id }"></span>` +
-        `<button class="stop-btn" onclick="stopTimer(${ id })"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text">✖️</span></button>`;
+        `<button class="stop-btn" onclick="stopTimer(${ id })"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text close-icon" alt="close icon"></span></button>`;
       list.appendChild(item);
       updateCountdowns();
     }
@@ -1084,13 +1110,13 @@
 
     // #region theme settings utils
     function updateTheme(newBaseColor) {
-      setBaseStyleValue('--base-color', newBaseColor)
+      setRootStyle('--base-color', newBaseColor)
     }
 
     function updateDropShadows(useDropShadow) {
       let next = 'var(--shadow)'
       if (!useDropShadow) { next = '0' }
-      setBaseStyleValue('--text-shadow', next)
+      setRootStyle('--text-shadow', next)
     }
 
     function updateButtonStyle(useLinkStyles) {
@@ -1100,8 +1126,8 @@
         nextBackground = 'var(--link-hover-background)'
         nextForeground = 'var(--link-hover-foreground)'
       }
-      setBaseStyleValue('--button-background', nextBackground)
-      setBaseStyleValue('--button-foreground', nextForeground)
+      setRootStyle('--button-background', nextBackground)
+      setRootStyle('--button-foreground', nextForeground)
     }
 
     function updateLinkStyle(useLinkStyles) {
@@ -1111,8 +1137,8 @@
         nextBackground = 'var(--link-hover-background)'
         nextForeground = 'var(--link-hover-foreground)'
       }
-      setBaseStyleValue('--link-background', nextBackground)
-      setBaseStyleValue('--link-foreground', nextForeground)
+      setRootStyle('--link-background', nextBackground)
+      setRootStyle('--link-foreground', nextForeground)
     }
 
     function updateTimerStyle(useLinkStyles) {
@@ -1122,16 +1148,38 @@
         nextBackground = 'var(--link-hover-background)'
         nextForeground = 'var(--link-hover-foreground)'
       }
-      setBaseStyleValue('--timer-background', nextBackground)
-      setBaseStyleValue('--timer-foreground', nextForeground)
+      setRootStyle('--timer-background', nextBackground)
+      setRootStyle('--timer-foreground', nextForeground)
     }
 
-    function updateBodyColor(useContrastColor) {
-      let next = 'var(--default-text-color)'
-      if (useContrastColor) next = 'var(--default-contrast-color)'
-      setBaseStyleValue('--text-color', next)
+
+    function updateBodyColor(useContrast) {
+      setRootStyleIf({
+        bool: useContrast,
+        rootStyleName: '--text-color',
+        onTrue: 'var(--default-contrast-color)',
+        onFalse: 'var(--default-text-color)',
+      })
     }
-    
+
+    function updateThemeIcon(usePalette) {
+      setRootStyleIf({
+        bool: usePalette,
+        rootStyleName: '--theme-icon',
+        onTrue: 'var(--paint-palette-icon)',
+        onFalse: 'var(--paint-splat-icon)',
+      })
+    }
+
+    function updateCloseIcon(useBlack) {
+      setRootStyleIf({
+        bool: useBlack,
+        onTrue: 'var(--black-close-icon)',
+        onFalse: 'var(--red-close-icon)',
+        rootStyleName: '--close-icon'
+      })
+    }
+
     function savePresetTheme(theme) {
       changeDom('base-color', 'value', theme.baseColor)
       changeDom('drop-shadow', 'checked', theme.useDropShadow)
@@ -1139,6 +1187,8 @@
       changeDom('link-style', 'checked', theme.useLinkHoverAlways)
       changeDom('link-timer-style', 'checked', theme.useTimerLinkStyles)
       changeDom('body-contrast-style', 'checked', theme.useBodyContrast)
+      changeDom('close-icon-style', 'checked', theme.useBlackCloseIcons)
+      changeDom('theme-icon-style', 'checked', theme.usePaletteThemeIcon)
     }
 
     const DEFAULT_THEME = {
@@ -1148,6 +1198,8 @@
       useButtonLinkStyles: false,
       useTimerLinkStyles: false,
       useBodyContrast: false,
+      useBlackCloseIcons: false,
+      usePaletteThemeIcon: false,
     }
 
     function loadPresetTheme(name) {
@@ -1163,6 +1215,8 @@
             useButtonLinkStyles: true,
             useTimerLinkStyles: true,
             useBodyContrast: true,
+            usePaletteThemeIcon: true,
+            useBlackCloseIcons: true,
           })
         }
         case 'red': {
@@ -1180,10 +1234,17 @@
             ...DEFAULT_THEME,
             baseColor: '#00823c',
             useButtonLinkStyles: true,
+            usePaletteThemeIcon: true,
+            useBlackCloseIcons: true,
           })
         }
         case 'teal': {
-          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#007864' })
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#007864',
+            usePaletteThemeIcon: true,
+            useBlackCloseIcons: true,
+          })
         }
         case 'blue': {
           return savePresetTheme({
@@ -1191,7 +1252,8 @@
             baseColor: '#0000ff',
             useDropShadow: false,
             useTimerLinkStyles: true,
-            useBodyContrast: true,
+            useBodyContrast: true,            
+            usePaletteThemeIcon: true,
           })
         }
         case 'sky-blue': {
@@ -1201,6 +1263,7 @@
             useButtonLinkStyles: true,
             useTimerLinkStyles: true,
             useBodyContrast: true,
+            usePaletteThemeIcon: true,
           })
         }
         case 'lavender': {
@@ -1216,6 +1279,18 @@
             useDropShadow: false,
             useButtonLinkStyles: true,
             useBodyContrast: true,
+            usePaletteThemeIcon: true,
+            useBlackCloseIcons: true,
+          })
+        }
+        case 'purple': {
+          return savePresetTheme({
+            ...DEFAULT_THEME,
+            baseColor: '#6400dc',
+            useTimerLinkStyles: true,
+            useBodyContrast: true,
+            usePaletteThemeIcon: true,
+            useBlackCloseIcons: true,
           })
         }
       }
@@ -1226,10 +1301,10 @@
     // #region minimize handling
     function toggleMinimize(shouldMinimize) {
       if (shouldMinimize) {
-        setBaseStyleValue('--minimizable-visibility', 'hidden')
-        setBaseStyleValue('--minimizable-height', 0)
-        setBaseStyleValue('--reverse-minimizable-visibility', 'visible')
-        setBaseStyleValue('--reverse-minimizable-height', 'auto')
+        setRootStyle('--minimizable-visibility', 'hidden')
+        setRootStyle('--minimizable-height', 0)
+        setRootStyle('--reverse-minimizable-visibility', 'visible')
+        setRootStyle('--reverse-minimizable-height', 'auto')
         const timers = accessDom('active-timers')
         timers.classList.add('minimized-children')
         accessDom('timer-creator').classList.add('minimized')
@@ -1237,10 +1312,10 @@
         return
       }
       
-      setBaseStyleValue('--minimizable-visibility', 'visible')
-      setBaseStyleValue('--minimizable-height', 'auto')
-      setBaseStyleValue('--reverse-minimizable-visibility', 'hidden')
-      setBaseStyleValue('--reverse-minimizable-height', 0)
+      setRootStyle('--minimizable-visibility', 'visible')
+      setRootStyle('--minimizable-height', 'auto')
+      setRootStyle('--reverse-minimizable-visibility', 'hidden')
+      setRootStyle('--reverse-minimizable-height', 0)
       accessDom('active-timers').classList.remove('minimized-children')
       accessDom('timer-creator').classList.remove('minimized')
     }
@@ -1309,7 +1384,7 @@
           onclick="togglePanel('panel-theme-settings')"
           aria-controls="panel-theme-settings-aria"
         >
-          <span class="icon">🫟</span>
+          <span class="icon paint-icon" alt="theme icon"></span>
           <span>theme settings</span>
         </button>
         <button
@@ -1331,7 +1406,7 @@
               title="close theme settings panel"
               aria-label="close theme settings panel"
               aria-controls="panel-theme-settings-aria"
-            >❌</button>
+            ><span class="close-icon" alt="close icon"></span></button>
           </div>
           <p class="color-change-warning">
             warning: theme colors are applied in some cases by `background-image`, which is not something CSS can animate changes to at this time.
@@ -1340,6 +1415,7 @@
           <div class="theme-setting">
             <label class="theme-label" for="preset-theme-color">load preset theme?</label>
             <select id="preset-theme-color" name="preset-theme-color" value="fiery-goodness" onchange="loadPresetTheme(this.value)">
+              <option disabled>Please select a preset theme</option>
               <option value="white">White</option>
               <option value="red">Light Red</option>
               <option value="cotton-candy">Cotton Candy</option>
@@ -1350,6 +1426,7 @@
               <option value="teal">Teal</option>
               <option value="sky-blue">Blue</option>
               <option value="blue">What 'Blue' Flowers Usually Look Like</option>
+              <option value="purple">Pink Purple Paradise</option>
               <option value="eggplant">Eggplant</option>
               <option value="polished-leather">Polished Leather</option>
             </select>
@@ -1377,6 +1454,14 @@
           <div class="theme-setting body-contrast-color-wrapper">
             <label class="theme-label" for="body-contrast-style">use <span class="body-contrast-color">contrast color</span> for most other text?</label>
             <input type="checkbox" id="body-contrast-style" name="body-contrast-style" onchange="updateBodyColor(this.checked)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="close-icon-style">use black ✖️ for close icons instead of ❌?</label>
+            <input type="checkbox" id="close-icon-style" name="close-icon-style" onchange="updateCloseIcon(this.checked)" />
+          </div>
+          <div class="theme-setting">
+            <label class="theme-label" for="theme-icon-style">use 🎨 instead for theme menu icon?</label>
+            <input type="checkbox" id="theme-icon-style" name="theme-icon-style" onchange="updateThemeIcon(this.checked)" />
           </div>
         </div>
       </div>
