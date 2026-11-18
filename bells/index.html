@@ -60,6 +60,10 @@
       --default-text-color: var(--foreground);
       --default-contrast-color: contrast-color(var(--base-color));
       --text-color: var(--default-text-color);
+      --minimizable-visibility: visible;
+      --minimizable-height: auto;
+      --reverse-minimizable-visibility: hidden;
+      --reverse-minimizable-height: 0;
     }
     /*
       ORIG COLORS
@@ -104,7 +108,7 @@
     }
     
     body {
-      font-family: sans-serif;
+      font-family: 'Tahoma', 'Verdana', sans-serif;
       background-color: var(--base-color);
       background-color: var(--accent);
       background-image: linear-gradient(319deg, var(--accent) 0%, var(--base-color) 37%, var(--accent-alt) 100%);
@@ -257,6 +261,43 @@
       width: 100%;
     }
 
+    .active-timers.minimized-children {
+      justify-content: center;
+      flex-flow: row wrap;
+      padding: 1rem;
+    }
+    .minimized-children {
+      .stop-btn {
+        gap: 0;
+        padding: 0;
+      }
+      .timer-item {
+        padding-bottom: 0.2rem;
+      }
+    }
+
+    .minimizable {
+      height: var(--minimizable-height);
+      visibility: var(--minimizable-visibility);
+    }
+    
+    .minimizable-text {
+      width: var(--minimizable-height);
+      height: var(--minimizable-height);
+      visibility: var(--minimizable-visibility);
+    }
+
+    .reverse-minimizable {
+      height: var(--reverse-minimizable-height);
+      visibility: var(--reverse-minimizable-visibility);
+    }
+
+    .reverse-minimizable-text {
+      width: var(--reverse-minimizable-height);
+      height: var(--reverse-minimizable-height);
+      visibility: var(--reverse-minimizable-visibility);
+    }
+
     .timer-item {
       display: flex;
       align-items: center;
@@ -318,6 +359,12 @@
 
     .icon {
       font-size: 1.5rem;
+      padding-bottom: 0.2rem;
+    }
+    .text-icon {
+      font-size: 2rem;
+      font-weight: bold;
+      padding-right: 0.2rem;
     }
 
     .optional {
@@ -793,7 +840,10 @@
       const now = Date.now();
       for (const timer of activeTimers) {
         const element = accessDom('countdown-' + timer.id);
-        if (element) element.textContent = formatCountdown(timer.nextRing - now);
+        const timeRemaining = formatCountdown(timer.nextRing - now);
+        if (element && element.textContent !== timeRemaining) {
+          element.textContent = timeRemaining;
+        }
       }
     }
 
@@ -940,9 +990,9 @@
       item.className = 'timer-item';
       item.id = 'timer-' + id;
       item.innerHTML =
-        `<span>${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
+        `<span class="minimizable-text">${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
         `<span id="countdown-${ id }"></span>` +
-        `<button class="stop-btn" onclick="stopTimer(${ id })">DESTROY</button>`;
+        `<button class="stop-btn" onclick="stopTimer(${ id })"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text">✖️</span></button>`;
       list.appendChild(item);
       updateCountdowns();
     }
@@ -1144,17 +1194,48 @@
       return savePresetTheme(DEFAULT_THEME)
     }
     // #endregion theme settings utils
+    // #region minimize handling
+    function toggleMinimize(shouldMinimize) {
+      if (shouldMinimize) {
+        setBaseStyleValue('--minimizable-visibility', 'hidden')
+        setBaseStyleValue('--minimizable-height', 0)
+        setBaseStyleValue('--reverse-minimizable-visibility', 'visible')
+        setBaseStyleValue('--reverse-minimizable-height', 'auto')
+        accessDom('active-timers').classList.add('minimized-children')
+        return
+      }
+      
+      setBaseStyleValue('--minimizable-visibility', 'visible')
+      setBaseStyleValue('--minimizable-height', 'auto')
+      setBaseStyleValue('--reverse-minimizable-visibility', 'hidden')
+      setBaseStyleValue('--reverse-minimizable-height', 0)
+      accessDom('active-timers').classList.remove('minimized-children')
+    }
+    // #endregion minimize handling
+    // #region local storage
+
+    // #endregion local storage
   </script>
 </head>
 
 <body>
   <main class="content">
-    <h1>What even is time????</h1>
+    <h1 class="minimizable">What even is time????</h1>
     <section>
-      <p>Here are some bells to try to help</p>
-      <div class="active-timers" id="active-timers" aria-role="timer"></div>
+      <div class="add-btns reverse-minimizable">
+        <button
+          class="stop-btn"
+          onclick="toggleMinimize(false)"
+          aria-controls="content"
+        >
+          <span class="icon text-icon">+</span>
+          <span>open full display</span>
+        </button>
+      </div>
+      <p class="minimizable">Here are some bells to try to help</p>
+      <div class="active-timers minimizable-children" id="active-timers" aria-role="timer"></div>
     </section>
-    <div id="bell-info-aria" aria-role="live-polite">
+    <div class="minimizable" id="bell-info-aria" aria-role="live-polite">
       <div class="bell-info-carousel" id="bell-info-carousel" hidden>
         <div class="bell-info-nav">
           <button class="stop-btn" onclick="bellInfoNav(-1)" aria-controls="bell-info-aria">&#8592;</button>
@@ -1164,7 +1245,7 @@
         <div class="bell-info-card" id="bell-info-card"></div>
       </div>
     </div>
-    <section class="timer-creator">
+    <section class="timer-creator minimizable">
       <div id="global-controls">
         <button class="stop-btn" onclick="stopAll()" aria-controls="active-timers">
           <span class="icon">🚮</span>
@@ -1192,11 +1273,24 @@
           title="try my current favorite bells"
           aria-controls="active-timers"
         >try preferred bell set</button>
+      </div>
+      <div class="add-btns">
         <button
-          class="create-btn"
+          class="stop-btn"
           onclick="togglePanel('panel-theme-settings')"
           aria-controls="panel-theme-settings-aria"
-        >theme settings</button>
+        >
+          <span class="icon">🫟</span>
+          <span>theme settings</span>
+        </button>
+        <button
+          class="stop-btn"
+          onclick="toggleMinimize(true)"
+          aria-controls="content"
+        >
+          <span class="icon text-icon">–</span>
+          <span>minimize display</span>
+        </button>
       </div>
       <div id="panel-theme-settings-aria" aria-live="polite">
         <div class="creator-panel theme-settings" id="panel-theme-settings">
