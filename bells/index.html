@@ -200,6 +200,10 @@
       border-radius: 4px;
       padding: 0.35rem 0.9rem;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
     }
 
     .create-btn:hover {
@@ -265,6 +269,7 @@
       justify-content: center;
       flex-flow: row wrap;
       padding: 1rem;
+      gap: 1.1rem;
     }
     .minimized-children {
       .stop-btn {
@@ -323,6 +328,12 @@
       flex-grow: 1;
     }
 
+    .windows-btn {
+      flex-flow: column nowrap;
+      flex-grow: 0;
+      padding: 1rem;
+    }
+
     .theme-setting {
       display: flex;
       flex-flow: row nowrap;
@@ -361,10 +372,16 @@
       font-size: 1.5rem;
       padding-bottom: 0.2rem;
     }
-    .text-icon {
-      font-size: 2rem;
+
+    .text-icon, .larger-text-icon {
       font-weight: bold;
-      padding-right: 0.2rem;
+      font-size: 1.5rem;
+      margin-top: -0.2rem;
+    }
+
+    .larger-text-icon {
+      font-size: 2rem;
+      margin-right: 0.4rem;
     }
 
     .optional {
@@ -1042,7 +1059,7 @@
       accessDom('bell-info-card').innerHTML =
       `<p><i>"${ bell.authorName }"</i> -- <strong>created by <a href="${ bell.originalSource }" target="_blank" rel="noopener">${ bell.author }</a></strong>, license: <a href="${ bell.licenseUrl }" target="_blank" rel="noopener">${ bell.license }</a></p>` +
       descriptions.map(d => `<p>${ d }</p>`).join('') +
-      `<p>Uncool Toast calls it: <strong>${ bell.label }</strong></p>`;
+      `<p>This page calls it: <strong>${ bell.label }</strong></p>`;
     }
 
     /** handle click on bell info pane nav */
@@ -1222,16 +1239,6 @@
   <main class="content">
     <h1 class="minimizable">What even is time????</h1>
     <section>
-      <div class="add-btns reverse-minimizable">
-        <button
-          class="stop-btn"
-          onclick="toggleMinimize(false)"
-          aria-controls="content"
-        >
-          <span class="icon text-icon">+</span>
-          <span>open full display</span>
-        </button>
-      </div>
       <p class="minimizable">Here are some bells to try to help</p>
       <div class="active-timers minimizable-children" id="active-timers" aria-role="timer"></div>
     </section>
@@ -1261,12 +1268,18 @@
           class="create-btn"
           onclick="togglePanel('panel-periodic')"
           aria-controls="panel-periodic-aria"
-        >add periodic bell</button>
+        >
+          <span class="text-icon">+</span>
+          <span>add periodic bell</span>
+      </button>
         <button
           class="create-btn"
           onclick="togglePanel('panel-timed')"
           aria-controls="panel-timed-aria"
-        >add timed bell</button>
+        >
+          <span class="text-icon">+</span>
+          <span>add timed bell</span>
+        </button>
         <button
           class="create-btn"
           onclick="setupPreferred()"
@@ -1288,7 +1301,7 @@
           onclick="toggleMinimize(true)"
           aria-controls="content"
         >
-          <span class="icon text-icon">–</span>
+          <span class="larger-text-icon">–</span>
           <span>minimize display</span>
         </button>
       </div>
@@ -1501,6 +1514,16 @@
       </div>
     </section>
     <aside>
+      <div class="add-btns reverse-minimizable">
+        <button
+          class="stop-btn windows-btn"
+          onclick="toggleMinimize(false)"
+          aria-controls="content"
+        >
+          <img src="../img/sojeri-side-project-bell-timer-app.png" height="100" width="100" />
+          <span>open full display</span>
+        </button>
+      </div>
       <audio id="bell-ringer-player" nocontrols src="" />
     </aside>
     <aside>
