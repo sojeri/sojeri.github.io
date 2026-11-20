@@ -25,6 +25,7 @@
 
     :root {
       --base-color: hsl(24, 100%, 50%);
+      --loading-color: #777;
       --dark: hsl(from var(--base-color) h s calc(l - 35));
       --dark: contrast-color(var(--base-color));
       --dark-alt: hsl(from var(--base-color) calc(h + 190) calc(s - 25) calc(l - 40));
@@ -133,6 +134,29 @@
     p {
       font-size: 1.5rem;
       line-height: 2.5rem;
+    }
+
+    #loading-pane {
+      height: 100vh;
+      width: 100vw;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: var(--loading-color);
+      color: contrast-color(var(--base-color));
+      /* note timing here is tied to the setTimeout which sets display none! */
+      transition: background 0.8s, color 0.8s;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    #loading-pane.fade-away {
+      background: transparent;
+      color: transparent;
+    }
+    
+    .display-none {
+      display: none;
     }
 
     .content {
@@ -905,7 +929,13 @@
     // TODO: update logic to reduce to once a minute if none are <5min
     setInterval(updateCountdowns, 1_000);
 
-    /** clears all form state, mostly necessary to avoid weird state issues on page reload */
+    /**
+     * 1. clears all form state
+     *    - necessary to avoid weird state issues on page reload
+     *      in browsers like firefox that preserve form state
+     * 2. grabs and applies settings from local storage
+     *    - theme state
+     */
     function resetPageState() {
       document.querySelectorAll('form').forEach(f => f.reset());
       document.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
@@ -923,7 +953,18 @@
       setFormValue('alarm-time', '');
       setPreviewVolume('alarm-preview-player', 0.4);
 
-      loadPresetTheme('fiery-goodness');
+      const themeProps = getSavedTheme()
+      if (themeProps !== null) {
+        loadTheme(themeProps);
+      } else {
+        loadPresetTheme('fiery-goodness');
+      }
+
+      accessDom('loading-pane').classList.add('fade-away')
+      setTimeout(() => {
+        accessDom('loading-pane').classList.add('display-none')
+        accessDom('loading-pane').classList.remove('fade-away')
+      }, 1_000)
     }
 
     document.addEventListener('DOMContentLoaded', resetPageState);
@@ -1111,12 +1152,14 @@
     // #region theme settings utils
     function updateTheme(newBaseColor) {
       setRootStyle('--base-color', newBaseColor)
+      saveData('theme.baseColor', newBaseColor)
     }
 
     function updateDropShadows(useDropShadow) {
       let next = 'var(--shadow)'
       if (!useDropShadow) { next = '0' }
       setRootStyle('--text-shadow', next)
+      saveData('theme.useDropShadow', useDropShadow)
     }
 
     function updateButtonStyle(useLinkStyles) {
@@ -1128,6 +1171,7 @@
       }
       setRootStyle('--button-background', nextBackground)
       setRootStyle('--button-foreground', nextForeground)
+      saveData('theme.useButtonLinkStyles', useLinkStyles)
     }
 
     function updateLinkStyle(useLinkStyles) {
@@ -1139,6 +1183,7 @@
       }
       setRootStyle('--link-background', nextBackground)
       setRootStyle('--link-foreground', nextForeground)
+      saveData('theme.useLinkHoverAlways', useLinkStyles)
     }
 
     function updateTimerStyle(useLinkStyles) {
@@ -1150,8 +1195,8 @@
       }
       setRootStyle('--timer-background', nextBackground)
       setRootStyle('--timer-foreground', nextForeground)
+      saveData('theme.useTimerLinkStyles', useLinkStyles)
     }
-
 
     function updateBodyColor(useContrast) {
       setRootStyleIf({
@@ -1160,6 +1205,7 @@
         onTrue: 'var(--default-contrast-color)',
         onFalse: 'var(--default-text-color)',
       })
+      saveData('theme.useBodyContrast', useContrast)
     }
 
     function updateThemeIcon(usePalette) {
@@ -1169,6 +1215,7 @@
         onTrue: 'var(--paint-palette-icon)',
         onFalse: 'var(--paint-splat-icon)',
       })
+      saveData('theme.usePaletteThemeIcon', usePalette)
     }
 
     function updateCloseIcon(useBlack) {
@@ -1178,9 +1225,10 @@
         onFalse: 'var(--red-close-icon)',
         rootStyleName: '--close-icon'
       })
+      saveData('theme.useBlackCloseIcons', useBlack)
     }
 
-    function savePresetTheme(theme) {
+    function setThemeProps(theme) {
       changeDom('base-color', 'value', theme.baseColor)
       changeDom('drop-shadow', 'checked', theme.useDropShadow)
       changeDom('link-button-style', 'checked', theme.useButtonLinkStyles)
@@ -1202,13 +1250,21 @@
       usePaletteThemeIcon: false,
     }
 
+    function loadTheme(props) {
+      setThemeProps(props)
+    }
+
     function loadPresetTheme(name) {
       switch (name) {
         case 'white': {
-          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ffffff', useDropShadow: false, })
+          return setThemeProps({
+            ...DEFAULT_THEME,
+            baseColor: '#ffffff',
+            useDropShadow: false,
+          })
         }
         case 'eggplant': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#460046',
             useDropShadow: false,
@@ -1220,17 +1276,19 @@
           })
         }
         case 'red': {
-          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ce7878' })
+          return setThemeProps({
+            ...DEFAULT_THEME, baseColor: '#ce7878'
+          })
         }
         case 'bright-green': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#82ff46',
             updateDropShadows: false,
           })
         }
         case 'green': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#00823c',
             useButtonLinkStyles: true,
@@ -1239,7 +1297,7 @@
           })
         }
         case 'teal': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#007864',
             usePaletteThemeIcon: true,
@@ -1247,7 +1305,7 @@
           })
         }
         case 'blue': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#0000ff',
             useDropShadow: false,
@@ -1257,7 +1315,7 @@
           })
         }
         case 'sky-blue': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#1ec8ff',
             useButtonLinkStyles: true,
@@ -1267,13 +1325,17 @@
           })
         }
         case 'lavender': {
-          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#7d7dff' })
+          return setThemeProps({
+            ...DEFAULT_THEME, baseColor: '#7d7dff'
+          })
         }
         case 'cotton-candy': {
-          return savePresetTheme({ ...DEFAULT_THEME, baseColor: '#ffb4ff' })
+          return setThemeProps({
+            ...DEFAULT_THEME, baseColor: '#ffb4ff'
+          })
         }
         case 'polished-leather': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#824000',
             useDropShadow: false,
@@ -1284,7 +1346,7 @@
           })
         }
         case 'purple': {
-          return savePresetTheme({
+          return setThemeProps({
             ...DEFAULT_THEME,
             baseColor: '#6400dc',
             useTimerLinkStyles: true,
@@ -1295,7 +1357,7 @@
         }
       }
 
-      return savePresetTheme(DEFAULT_THEME)
+      return setThemeProps(DEFAULT_THEME)
     }
     // #endregion theme settings utils
     // #region minimize handling
@@ -1322,6 +1384,47 @@
     // #endregion minimize handling
     // #region local storage
 
+    /** saves data to local storage */
+    function saveData(field, data) {
+      return localStorage.setItem(field, data)
+    }
+
+    /** retrieves data from local storage */
+    function getData(field) {
+      return localStorage.getItem(field)
+    }
+
+    /** deletes data from local storage */
+    function deleteData(field) {
+      return localStorage.removeItem(field);
+    }
+
+    /** destructive! clears ALL local storage for this site */
+    function clearAllData() {
+      localStorage.clear()
+    }
+
+    function getSavedTheme() {
+      let foundSavedValue = false
+      const theme = {}
+      const themeKeys = [
+        'baseColor',
+        'useDropShadow',
+        'useLinkHoverAlways',
+        'useButtonLinkStyles',
+        'useTimerLinkStyles',
+        'useBodyContrast',
+        'useBlackCloseIcons',
+        'usePaletteThemeIcon',
+      ]
+      themeKeys.forEach(key => {
+        const data = getData(`theme.${key}`)
+        const trueFalseData = data === 'true'
+        foundSavedValue = foundSavedValue || data !== null
+        theme[key] = key !== 'baseColor' ? trueFalseData : data
+      })
+      return foundSavedValue ? theme : null
+    }
     // #endregion local storage
   </script>
 </head>
@@ -1643,5 +1746,12 @@
       </nav>
     </aside>
   </main>
+  <div id="loading-pane">
+    <noscript>
+      Sorry, this page requires JavaScript to work.
+      It is a bell timer site which uses JavaScript to track time and play sounds.  
+    </noscript>
+    <p>Loading...</p>
+  </div>
 </body>
 </html>
