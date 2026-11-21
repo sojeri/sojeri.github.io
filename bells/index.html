@@ -111,7 +111,6 @@
       width: 100%;
       height: 100%;
       overflow: auto;
-      filter: contrast(100%);
     }
     
     body {
@@ -148,15 +147,44 @@
       transition: background 0.8s, color 0.8s;
       padding: 1rem;
       text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #loading-pane.fade-away {
       background: transparent;
       color: transparent;
     }
-    
-    .display-none {
+
+    #loading-pane.fade-half {
+      background: hsl(from var(--base-color) h s l / 50%);
+      color: transparent;
+    }
+
+    #loading-pane.display-none {
       display: none;
+    }
+
+    #previous-bells-found {
+      height: 100%;
+      display: flex;
+      flex-flow: column nowrap;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    #previous-bells-found > * {
+      background: var(--base-color);
+      color: var(--default-contrast-color);
+      font-size: 1.1rem;
+      box-shadow: var(--shadow);
+      padding: 2rem;
+      flex-grow: 0;
+    }
+
+    #previous-bells-found button:hover, #previous-bells-found button:active {
+      background: var(--foreground);
     }
 
     .content {
@@ -346,9 +374,13 @@
       gap: 0.8rem;
       color: var(--timer-foreground);
       background: var(--timer-background);
-      border: 1px solid var(--foreground-light);
+      border: 0.1rem solid var(--foreground-light);
       border-radius: 6px;
       padding: 0.4rem 0.8rem;
+    }
+
+    .timer-item.ringing {
+      border: 0.1rem solid contrast-color(var(--base-color));
     }
 
     .stop-btn {
@@ -804,6 +836,7 @@
       defaultVolume: 0.3,
     });
   
+    /** all the bells on an object */
     const BELLS = {
       LowGong,
       MediumBright,
@@ -815,6 +848,8 @@
       SoftWooden,
       BrightMetal,
     };
+    /** array of all the bells */
+    const BELLS_ARRAY = Object.values(BELLS);
     // #endregion bell shenanigans
 
     const activeBells = [];
@@ -897,7 +932,7 @@
       if (minute > 5) return `~${minute}min`;
 
       const second = seconds % 60;
-      return minute + ':' + String(second).padStart(2, '0');
+      return `${minute}:${String(second).padStart(2, '0')}`;
     }
     // #endregion shared time utils
 
@@ -914,19 +949,41 @@
       setFormValue(prefix + '-volume', bell.defaultVolume.toFixed(1));
     }
 
-    /** updates the countdown display for all active timers */
+    function getResetOrDeleteTimerCb(timer) {
+      return function() {
+        if (timer.oneShot) return stopTimer(timer.id)
+        timer.isRinging = false
+        const timerElement = accessDom(`timer-${timer.id}`)
+        timerElement?.classList?.remove('ringing')
+        timer.nextRing = timer.nextRing + timer.periodMs
+      }
+    }
+
+    /**
+     * updates the countdown display for all active timers
+     * and rings any bells that are due
+     */
     function updateCountdowns() {
       const now = Date.now();
       for (const timer of activeTimers) {
         const element = accessDom('countdown-' + timer.id);
-        const timeRemaining = formatCountdown(timer.nextRing - now);
+        const timerDomId = `timer-${timer.id}`
+        let timeRemaining = formatCountdown(timer.nextRing - now);
+        if (!timer.isRinging && (timeRemaining === '0:00' || now >= timer.nextRing)) {
+          timer.isRinging = true;
+          const durationMs = Math.floor(timer.bell.player.duration) * 1_000;
+          timer.bell.ring(timer.volume)
+          if (element?.parentElement) {
+            element.parentElement.classList.add('ringing')
+            setTimeout(getResetOrDeleteTimerCb(timer), durationMs)
+          }
+        }
         if (element && element.textContent !== timeRemaining) {
           element.textContent = timeRemaining;
         }
       }
     }
 
-    // TODO: update logic to reduce to once a minute if none are <5min
     setInterval(updateCountdowns, 1_000);
 
     /**
@@ -953,18 +1010,40 @@
       setFormValue('alarm-time', '');
       setPreviewVolume('alarm-preview-player', 0.4);
 
-      const themeProps = getSavedTheme()
-      if (themeProps !== null) {
-        loadTheme(themeProps);
+      const savedTheme = getSavedTheme()
+      if (savedTheme !== null) {
+        loadTheme(savedTheme);
       } else {
         loadPresetTheme('fiery-goodness');
       }
+      
+      const isMinimized = getBoolData('settings.isMinimized');
+      toggleMinimize(isMinimized);
 
-      accessDom('loading-pane').classList.add('fade-away')
-      setTimeout(() => {
-        accessDom('loading-pane').classList.add('display-none')
-        accessDom('loading-pane').classList.remove('fade-away')
-      }, 1_000)
+      // handle saved bells
+      recreateSavedBells();
+      const bellsWord = `bell${activeTimers.length > 1 ? 's' : ''}`
+      const bellsDisplay = `${activeTimers.length} ${bellsWord} found from a previous visit. Please click here to keep them.`
+      const destroyBellsDisplay = `🚮 Or click here to discard all previous bells instead.`
+      if (activeTimers.length === 0) {
+        accessDom('loading-pane').classList.add('fade-away')
+        setTimeout(() => {
+          accessDom('loading-pane').classList.remove('fade-away')
+          accessDom('loading-pane').classList.add('display-none')
+        }, 1_000)
+      } else {
+        accessDom('loading-pane').classList.add('fade-half')
+        accessDom('previous-bells-found').innerHTML = '<button class="stop-btn" onclick="removeLoadingPane()">' + bellsDisplay + '</button>' + '<button class="stop-btn" onclick="removeLoadingPane(true)">' + destroyBellsDisplay + '</button>'
+      }
+    }
+
+    function removeLoadingPane(deleteBells) {
+      if (deleteBells) {
+        accessDom('loading-pane').classList.remove('fade-half')
+        accessDom('loading-pane').classList.add('fade-away')
+        stopAll()
+      }
+      accessDom('loading-pane').classList.add('display-none')
     }
 
     document.addEventListener('DOMContentLoaded', resetPageState);
@@ -1000,7 +1079,7 @@
       );
     }
 
-    /** cancels and removes a timer from the DOM */
+    /** cancels and removes a timer */
     function stopTimer(id) {
       const timerIndex = activeTimers.findIndex(t => t.id === id);
       if (timerIndex !== -1) {
@@ -1008,53 +1087,38 @@
         activeTimers.splice(timerIndex, 1);
       }
       accessDom('timer-' + id)?.remove();
+      BELL_PROPS.forEach(p => {
+        deleteData(`bell.${id}.${p}`)
+      })
+      const remaining = activeTimers.map(t => t.id)
+      saveData('bells', remaining)
     }
 
-    /** cancels and removes all timers from the DOM */
+    /** cancels and removes all timers */
     function stopAll() {
-      for (const timer of [...activeTimers]) stopTimer(timer.id);
-      BELLS.forEach(bell => bell.shhhhh());
+      [...activeTimers].forEach(t => stopTimer(t.id));
+      BELLS_ARRAY.forEach(bell => bell.shhhhh())
     }
     // #endregion actual create timer / ringer UX
 
     // #region create timer / ringer handlers
     const activeTimers = [];
 
-    let spawnCounter = 0;
-
     /** creates a new periodic bell timer */
     function spawnPeriodic(bell, minutes, delayMs, volume = bell.defaultVolume) {
-      const periodMs = minutes * 60 * 1000;
-      const id = Date.now() + (spawnCounter++);
+      const periodMs = minutes * 60 * 1_000;
+      const id = crypto.randomUUID();
+      const domId = `timer-${id}`;
       const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
-      let intervalId;
-
-      const ringBell = () => bell.ring(volume);
-
-      if (delayMs > 0) {
-        intervalId = setTimeout(() => {
-          ringBell();
-          const entry = activeTimers.find(t => t.id === id);
-          if (!entry) return;
-          entry.nextRing = Date.now() + periodMs;
-          const intervalId = setInterval(() => {
-            ringBell();
-            const entry = activeTimers.find(t => t.id === id);
-            if (entry) { entry.nextRing = Date.now() + periodMs; entry.intervalId = intervalId; }
-          }, periodMs);
-          entry.intervalId = intervalId;
-        }, delayMs);
-      } else {
-        intervalId = setInterval(() => {
-          ringBell();
-          const entry = activeTimers.find(t => t.id === id);
-          if (entry) entry.nextRing = Date.now() + periodMs;
-        }, periodMs);
-      }
-
-      activeTimers.push({ id, intervalId, nextRing, oneShot: false });
       const periodLabel = `every ${ minutes } min`;
-      spawnTimer(id, bell.label, periodLabel, Math.round(volume * 100));
+      spawnTimer({
+        id, bell, delayMs, nextRing, periodMs, 
+        label: bell.label,
+        oneShot: false,
+        periodLabel: `every ${ minutes } min`,
+        periodLength: minutes,        
+        volumePct: Math.round(volume * 100),
+      });
     }
 
     /** creates a new timed bell alarm */
@@ -1066,31 +1130,78 @@
       if (target <= now) target.setDate(target.getDate() + 1);
       const delayMs = target - now;
 
-      const id = Date.now() + (spawnCounter++);
+      const id = crypto.randomUUID();
+      const domId = `timer-${id}`;
       const nextRing = Date.now() + delayMs;
 
-      const timeoutId = setTimeout(() => {
-        bell.ring(volume);
-        stopTimer(id);
-      }, delayMs);
-
-      activeTimers.push({ id, intervalId: timeoutId, nextRing, oneShot: true });
       const displayTime = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      spawnTimer(id, bell.label, `at ${ displayTime }`, Math.round(volume * 100));
+      spawnTimer({
+        id, bell, delayMs, nextRing,
+        label: bell.label,
+        oneShot: true,
+        periodLabel: `at ${ displayTime }`,
+        periodLength: 0,
+        periodMs: 0,
+        volumePct: Math.round(volume * 100),
+      });
     }
 
-    /** adds a new bell timer to the DOM */
-    function spawnTimer(id, label, periodLabel, volumePct) {
+    const BELL_NUM_PROPS = [
+      'nextRing',
+      'periodLength',
+      'periodMs',
+      'volume',
+    ]
+    const BELL_PROPS = [
+      'bell',
+      'label',
+      'nextRing',
+      'oneShot',
+      'periodLabel',
+      'periodLength',
+      'periodMs',
+      'volume',
+    ]
+    
+    /**
+     * adds a new bell timer to the DOM. options: 
+     * ```
+        id, bell, delayMs, label, nextRing, oneShot,
+        periodLength, periodLabel, periodMs, volumePct,
+      ```
+     */
+    function spawnTimer(options) {
+      const {
+        id, bell, delayMs, label, nextRing, oneShot,
+        periodLength, periodLabel, periodMs, volumePct,
+      } = options
+
+      // add to global timers set
+      activeTimers.push(options);
+
+      // add to timers list / countdown display in DOM
       const list = accessDom('active-timers');
       const item = document.createElement('div');
       item.className = 'timer-item';
       item.id = 'timer-' + id;
       item.innerHTML =
-        `<span class="minimizable-text">${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
-        `<span id="countdown-${ id }"></span>` +
-        `<button class="stop-btn" onclick="stopTimer(${ id })"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text close-icon" alt="close icon"></span></button>`;
+      `<span class="minimizable-text">${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
+      `<span id="countdown-${ id }"></span>` +
+      `<button class="stop-btn" onclick="stopTimer('${ id }')"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text close-icon" alt="close icon"></span></button>`;
       list.appendChild(item);
       updateCountdowns();
+
+      // add to local storage
+      const currentBells = activeTimers.map(t => t.id).join(',');
+      saveData('bells', currentBells)
+      saveData(`bell.${id}.bell`, bell?.label)
+      saveData(`bell.${id}.label`, label)
+      saveData(`bell.${id}.nextRing`, nextRing)
+      saveData(`bell.${id}.oneShot`, oneShot)
+      saveData(`bell.${id}.periodLabel`, periodLabel)
+      saveData(`bell.${id}.periodLength`, periodLength)
+      saveData(`bell.${id}.periodMs`, periodMs)
+      saveData(`bell.${id}.volume`, volumePct)
     }
 
     /** arranges default preferred bells
@@ -1277,7 +1388,8 @@
         }
         case 'red': {
           return setThemeProps({
-            ...DEFAULT_THEME, baseColor: '#ce7878'
+            ...DEFAULT_THEME,
+            baseColor: '#ce7878',
           })
         }
         case 'bright-green': {
@@ -1326,12 +1438,14 @@
         }
         case 'lavender': {
           return setThemeProps({
-            ...DEFAULT_THEME, baseColor: '#7d7dff'
+            ...DEFAULT_THEME,
+            baseColor: '#7d7dff',
           })
         }
         case 'cotton-candy': {
           return setThemeProps({
-            ...DEFAULT_THEME, baseColor: '#ffb4ff'
+            ...DEFAULT_THEME,
+            baseColor: '#ffb4ff',
           })
         }
         case 'polished-leather': {
@@ -1362,6 +1476,8 @@
     // #endregion theme settings utils
     // #region minimize handling
     function toggleMinimize(shouldMinimize) {
+      saveData('settings.isMinimized', shouldMinimize)
+
       if (shouldMinimize) {
         setRootStyle('--minimizable-visibility', 'hidden')
         setRootStyle('--minimizable-height', 0)
@@ -1394,27 +1510,25 @@
       return localStorage.getItem(field)
     }
 
+    /** retrieves data from local storage -- as a boolean */
+    function getBoolData(field) {
+      return localStorage.getItem(field) === 'true'
+    }
+
     /** deletes data from local storage */
     function deleteData(field) {
       return localStorage.removeItem(field);
     }
 
-    /** destructive! clears ALL local storage for this site */
-    function clearAllData() {
-      localStorage.clear()
-    }
-
+    /** pulls theme settings from local storage */
     function getSavedTheme() {
       let foundSavedValue = false
       const theme = {}
+      // FIXME: consider enums for form fields and this type of stuff
       const themeKeys = [
-        'baseColor',
-        'useDropShadow',
-        'useLinkHoverAlways',
-        'useButtonLinkStyles',
-        'useTimerLinkStyles',
-        'useBodyContrast',
-        'useBlackCloseIcons',
+        'baseColor', 'useDropShadow', 'useLinkHoverAlways',
+        'useButtonLinkStyles', 'useTimerLinkStyles',
+        'useBodyContrast', 'useBlackCloseIcons',
         'usePaletteThemeIcon',
       ]
       themeKeys.forEach(key => {
@@ -1424,6 +1538,69 @@
         theme[key] = key !== 'baseColor' ? trueFalseData : data
       })
       return foundSavedValue ? theme : null
+    }
+
+    /** pulls bell settings from local storage */
+    function getSavedBells() {
+      const bells = getData('bells')
+      if (bells === null || bells === '') return { ids: [] }
+
+      const output = { ids: [] }
+      const ids = bells.split(',')
+      ids.forEach(id => {
+        const bellData = {}
+        BELL_PROPS.forEach(prop => {
+          let value = getData(`bell.${id}.${prop}`)
+          if (BELL_NUM_PROPS.indexOf(prop) > -1) {
+            value = Number(value)
+          }
+          bellData[prop] = value
+        })
+        if (Object.keys(bellData).length > 0) {
+          output[id] = bellData
+          output.ids.push(id)
+        }
+      })
+      saveData('bells', output.ids.join(','))
+
+      return output
+    }
+    function getBellFromLabel(label) {
+      return BELLS_ARRAY.find(bell => bell.label === label)
+    }
+    function recreateSavedBells() {
+      const bells = getSavedBells()
+      const currentTime = new Date().getTime()
+      bells.ids.forEach(id => {
+        const cachedBell = bells[id]
+        let nextRing = Number(cachedBell.nextRing)
+        const periodLength = Number(cachedBell.periodLength)
+
+        // skip one off bells that have expired
+        if (nextRing < currentTime && periodLength === 0) return
+
+        // bump nextRing up for any other expired ring
+        while (nextRing <= currentTime) {
+          const nextRingDate = new Date(nextRing)
+          const nextRingMinutes = nextRingDate.getMinutes()
+          const next = new Date(nextRingDate.setMinutes(nextRingMinutes + periodLength))
+          nextRing = next.getTime()
+        }
+        
+        const ringDate = new Date(cachedBell.nextRing)
+        const displayTime = `${ringDate.getHours()}:${ringDate.getMinutes}`
+        spawnTimer({
+          id,
+          nextRing,
+          periodLength,
+          bell: getBellFromLabel(cachedBell.label),
+          label: cachedBell.label,
+          oneShot: periodLength === 0,
+          periodLabel: cachedBell.periodLabel,
+          volumePct: cachedBell.volume,
+          periodMs: cachedBell.periodMs,
+        })
+      })
     }
     // #endregion local storage
   </script>
@@ -1751,7 +1928,7 @@
       Sorry, this page requires JavaScript to work.
       It is a bell timer site which uses JavaScript to track time and play sounds.  
     </noscript>
-    <p>Loading...</p>
+    <p id="previous-bells-found">Loading...</p>
   </div>
 </body>
 </html>
