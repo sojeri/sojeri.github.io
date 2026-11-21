@@ -2,7 +2,15 @@
 
 [https://sojeri.github.io/](https://sojeri.github.io/)
 
-to be honest, there's not much going on here.
+page     | what it is | tech used | when started?
+---------|------------|-----------|---------------
+[/ (site root)](https://sojeri.github.io) | not much. has my name and links to a few other things including some of the below | HTML & CSS only | __3/2015__ (first commit: [d1639cf1](https://github.com/sojeri/sojeri.github.io/commit/d1639cf16e84c689ecfb39f4e9513126ea6fb1f0))
+[/bells](https://sojeri.github.io/bells) | meditation / timer bell ringer web app | vanilla JS | __2/2025__ (first commit: [622dea9f](https://github.com/uncooltoast/uncooltoast.github.io/commit/622dea9fc13b8499a086e199dca13abd6907f5d9))
+[/better-linkedin-skills](https://sojeri.github.io/better-linkedin-skills) | better display options for my linkedin skills, including a tag cloud and a sortable / filterable table | in-browser compiled react | __10/2026__ (first commit: [4e58b9c1](https://github.com/sojeri/sojeri.github.io/commit/4e58b9c11aa92002d81c0c3e1e3e95b3c6b34ff9))
+[/developer-story](https://sojeri.github.io/developer-story) | interactive timeline of my roles, side projects, and achievements with screenshots, skill tags, and prose | vanilla JS | __12/2025__ (first commit: [643cd5a4](https://github.com/sojeri/sojeri.github.io/commit/643cd5a4a50617ee2306bd0d5686761d2890da12))
+[/howsTheWeatherSeattle](https://sojeri.github.io/howsTheWeatherSeattle?zip=98144) | real-time weather widget with a Seattle skyline that reacts to current conditions, sunrise/sunset, air quality, UV index, and more (lives in [another repo](https://github.com/sojeri/howsTheWeatherSeattle)) | bundled JS with CSS in JS | __1/2019__ (first commit: [6c424ebd](https://github.com/sojeri/howsTheWeatherSeattle/commit/6c424ebd937390f909c4d426fb01a5cea2d76fe7))
+[/setGame](https://sojeri.github.io/setGame) | OLD! first ever web coding project, a single-player version of the card game Set with a hint button you can spam to auto play the whole game. (lives in [another repo](https://github.com/sojeri/setGame)) | vanilla JS | __2/2015__ (first commit: [f80a622b](https://github.com/sojeri/setGame/commits/gh-pages)
+[/solarSystem](https://sojeri.github.io/solarSystem) | OLD! first ever CSS animation project -- model of the solar system | HTML & CSS only | __4/2015__ (first commit: [d4c3f65b](https://github.com/sojeri/sojeri.github.io/commit/d4c3f65bedb0b44d507a3ec1758ceda1ca28713b))
 
 ### CHANGELOG
 
