@@ -20,7 +20,7 @@
     }
 
     body, .timer-creator {
-      transition: background 2s, background-color 2s, background-image 2s;
+      transition: background 2s, background-color 2s;
     }
 
     :root {
@@ -210,6 +210,18 @@
       gap: 0.8rem;
     }
 
+    p.last-timer {
+      margin-top: 1rem;
+    }
+
+    .last-timer {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+
     .timer-creator {
       display: flex;
       flex-flow: column nowrap;
@@ -312,6 +324,9 @@
       background-color: var(--contrast-medium);
       color: contrast-color(var(--contrast-medium));
     }
+    .creator-panel-header:hover {
+      background: var(--foreground-light);
+    }
 
     .close-panel-btn {
       font-size: 1.5rem;
@@ -380,7 +395,8 @@
     }
 
     .timer-item.ringing {
-      border: 0.1rem solid contrast-color(var(--base-color));
+      border: 0.1rem solid transparent;
+      box-shadow: var(--shadow);
     }
 
     .stop-btn {
@@ -471,12 +487,23 @@
       gap: 0.4rem;
     }
 
-    input[type="time"] {
+    .stretchy {
+      flex-grow: 1;
+    }
+
+    input[type="time"], input[type="text"] {
       color: var(--foreground);
       background: var(--contrast-medium);
       border: 1px solid var(--foreground-light);
       border-radius: 4px;
       padding: 0.3rem 0.5rem;
+    }
+
+    input[type="text"] {
+      width: 100%;
+    }
+    
+    input[type="time"] {
       cursor: pointer;
     }
 
@@ -860,6 +887,15 @@
       return document.getElementById(id);
     }
 
+    /** grabs an element from the DOM, returns a sanitized string value */
+    function getSanitizedFormValue(domId, defaultReturn) {
+      const element = accessDom(domId);
+      if (element === null) return defaultReturn;
+
+      const rawValue = element.value;
+      return sanitizeStr(rawValue, defaultReturn);
+    }
+
     /** grab an element from the DOM, updates a property on it, and fires a change event */
     function changeDom(id, propName, newProp) {
       const element = accessDom(id);
@@ -949,23 +985,77 @@
       setFormValue(prefix + '-volume', bell.defaultVolume.toFixed(1));
     }
 
+    /** given a timer, returns the next ring value ahead of the current time*/
+    function getNextTimerRing(timer) {
+      const now = Date.now();
+      let nextRing = timer.nextRing;
+      let periodMs = timer.periodMs;
+
+      // 0 should mean oneShot, so set default 1 day
+      if (periodMs === 0) periodMs = 24 * ONE_HOUR_MS;
+
+      while (nextRing <= now) {
+        nextRing = nextRing + periodMs
+      }
+      return nextRing
+    }
+
+    /**
+     * returns a callback function which can either:
+     * - update a timer's nextRing to something beyond current time, or
+     * - delete a timer if it's an expired one-shot
+     */
     function getResetOrDeleteTimerCb(timer) {
-      return function() {
-        if (timer.oneShot) return stopTimer(timer.id)
+      return function resetOrDelete() {
+        const nextRing = getNextTimerRing(timer)
+        if (timer.oneShot && nextRing !== timer.nextRing) {
+          return stopTimer(timer.id)
+        }
         timer.isRinging = false
         const timerElement = accessDom(`timer-${timer.id}`)
         timerElement?.classList?.remove('ringing')
-        timer.nextRing = timer.nextRing + timer.periodMs
+        timer.nextRing = nextRing
       }
     }
 
     /**
-     * updates the countdown display for all active timers
-     * and rings any bells that are due
+     * used for time drift detection. aka, user hibernated or shut down computer,
+     * and in some way restored the current tab without triggering a full page refresh.
+     */
+    let lastKnownTime = Date.now()
+    const COUNTDOWN_INTERVAL = 1_000
+    const TIME_DRIFT_REQUIREMENT = 5 * COUNTDOWN_INTERVAL;
+
+    const TIME_DRIFT_DETECTED_DISPLAY = 'Unknown. Time drift detected';
+
+    /** preferred display timestring settings */
+    const TIME_STRING_SETTINGS = { hour: 'numeric', minute: '2-digit' };
+
+    function setLastTimerRun(what) {
+      const element = accessDom('last-timer-info');
+      element.innerHTML = `<span>${
+        what
+      } @</span><span>${
+        new Date().toLocaleTimeString([], TIME_STRING_SETTINGS)
+      }.</span>`;
+    }
+
+    /**
+     * updates the countdown display for all active timers, and rings any bells that are due.
+     * 
+     * if time drift is detected, skips ringing any bells that would have rung during the missing time.
      */
     function updateCountdowns() {
       const now = Date.now();
+      const timeDriftDetected = lastKnownTime + TIME_DRIFT_REQUIREMENT <= now;
+      lastKnownTime = now;
       for (const timer of activeTimers) {
+        const resetOrDeleteCb = getResetOrDeleteTimerCb(timer);
+        if (timeDriftDetected) {
+          setLastTimerRun(TIME_DRIFT_DETECTED_DISPLAY);
+          resetOrDeleteCb();
+        }
+
         const element = accessDom('countdown-' + timer.id);
         const timerDomId = `timer-${timer.id}`
         let timeRemaining = formatCountdown(timer.nextRing - now);
@@ -975,8 +1065,9 @@
           timer.bell.ring(timer.volume)
           if (element?.parentElement) {
             element.parentElement.classList.add('ringing')
-            setTimeout(getResetOrDeleteTimerCb(timer), durationMs)
+            setTimeout(resetOrDeleteCb, durationMs)
           }
+          setLastTimerRun(timer.label);
         }
         if (element && element.textContent !== timeRemaining) {
           element.textContent = timeRemaining;
@@ -984,16 +1075,9 @@
       }
     }
 
-    setInterval(updateCountdowns, 1_000);
+    setInterval(updateCountdowns, COUNTDOWN_INTERVAL);
 
-    /**
-     * 1. clears all form state
-     *    - necessary to avoid weird state issues on page reload
-     *      in browsers like firefox that preserve form state
-     * 2. grabs and applies settings from local storage
-     *    - theme state
-     */
-    function resetPageState() {
+    function resetFormState() {
       document.querySelectorAll('form').forEach(f => f.reset());
       document.querySelectorAll('select').forEach(s => { s.selectedIndex = 0; });
 
@@ -1002,13 +1086,28 @@
       setFormValue('timer-period', '30');
       setFormValue('timer-volume', '0.4');
       setFormValue('timer-start-at', '');
+      setFormValue('timer-display', '');
       setPreviewVolume('timer-preview-player', 0.4);
 
       switchPreviewBell('alarm-preview-player', 'HighBright');
       setFormValue('alarm-bell', 'HighBright');
       setFormValue('alarm-volume', '0.4');
       setFormValue('alarm-time', '');
+      setFormValue('alarm-display', '');
       setPreviewVolume('alarm-preview-player', 0.4);
+    }
+
+    /**
+     * 1. clears all form state
+     *    - necessary to avoid weird state issues on page reload
+     *      in browsers like firefox that preserve form state
+     * 2. grabs and applies state from local storage
+     *    - theme preferences
+     *    - bells created on previous page visit
+     *    - minimal UI
+     */
+    function resetPageState() {
+      resetFormState();
 
       const savedTheme = getSavedTheme()
       if (savedTheme !== null) {
@@ -1037,6 +1136,15 @@
       }
     }
 
+    /**
+     * click handler for when bells from a previous visit were detected.
+     * many browsers require users to interact with the page before sound can play,
+     * so this function and the UI behind it* are there to ensure the timers can ring.
+     * 
+     * \* = eg, 6 bells detected, do you want to keep or delete them?
+     *      clicking either button counts as a user interacting with the page,
+     *      which disables no autoplay audio protections.
+     */
     function removeLoadingPane(deleteBells) {
       if (deleteBells) {
         accessDom('loading-pane').classList.remove('fade-half')
@@ -1048,35 +1156,118 @@
 
     document.addEventListener('DOMContentLoaded', resetPageState);
 
+    const PERIODIC_FORM_IDS = {
+      bell: 'timer-bell',
+      display: 'timer-display',
+      period: 'timer-period',
+      start: 'timer-start-at',
+      volume: 'timer-volume',
+    }
+
+    const ALARM_FORM_IDS = {
+      bell: 'alarm-bell',
+      display: 'alarm-display',
+      period: 'alarm-period',
+      start: 'alarm-time',
+      volume: 'alarm-volume',
+    }
+
+    /** calculates display label for a recurring alarm, eg every 30 min */
+    function calculateRecurringLabel ({minutes}) {
+      return (
+        minutes > 60 ?
+          `every ${ Math.floor(minutes / 60) } hrs` :
+          `every ${ minutes } min`
+      );
+    }
+
+    /** calculates display label for a one-off alarm, eg at 2pm */
+    const calculateOnceLabel = ({ target }) => {
+      const timeStr = target.toLocaleTimeString([], TIME_STRING_SETTINGS);
+      return `at ${timeStr}`;
+    }
+
     /** uses form state to inject a new periodic bell timer */
-    function createTimer() {
-      const bell = BELLS[accessDom('timer-bell').value];
-      const minutes = parseInt(accessDom('timer-period').value);
-      const volume = parseFloat(accessDom('timer-volume').value);
-      const startValue = accessDom('timer-start-at').value;
+    function createPeriodicRinger() {
+      return spawnFromForm(PERIODIC_FORM_IDS, false, calculateRecurringLabel)
+    }
+    
+    /** creates a timer based on a given set of options, @see spawnTimer */
+    function spawnFromOptions(options, startTime) {
+      const bell = options.bell;
+      if (!bell) return;
 
-      let delayMs = 0;
-      if (startValue) {
-        const [hour, minute] = startValue.split(':').map(Number);
-        const target = new Date();
-        target.setHours(hour, minute, 0, 0);
-        if (target <= new Date()) target.setDate(target.getDate() + 1);
-        delayMs = target - Date.now();
+      const id = options.id || crypto.randomUUID();
+      const volumePct = options.volumePct || (bell.defaultVolume * 100);
+      const periodLength = options.periodLength || 0;
+      const periodMs = options.periodMs || (periodLength * ONE_MINUTE_MS);
+      const label = options.label || options.bell.label;
+      const oneShot = options.oneShot === true;
+      
+      const { target, delayMs } = calculateDelay(startTime, options.delayMs);
+      let periodLabel = options.periodLabel;
+      if (periodLabel === undefined) {
+        let getTimeLabelCb = oneShot ? calculateOnceLabel : calculateRecurringLabel;
+        periodLabel = getTimeLabelCb({ minutes: periodLength, target })
       }
+      const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
 
-      spawnPeriodic(bell, minutes, delayMs, volume);
+      spawnTimer({
+        id, bell, delayMs, label, nextRing, oneShot,
+        periodLabel, periodLength, periodMs, volumePct,
+      });
+    }
+
+    /** calculates delayMs and target Date */
+    function calculateDelay(timeStr = '', initial = 0) {
+      const target = new Date();
+      if (timeStr.length === 0) return { delayMs: initial, target };
+
+      const [hour, minute] = timeStr.split(':').map(Number);
+      target.setHours(hour, minute, 0, 0);
+      if (target <= new Date()) target.setDate(target.getDate() + 1);
+      delayMs = target - Date.now();
+      return { target, delayMs };
+    }
+
+    /** creates a timer based on a given set of form values */
+    function spawnFromForm(formIds, isOneShot, getTimeLabelCb) {
+      const id = crypto.randomUUID();
+
+      const volume = parseFloat(getSanitizedFormValue(formIds.volume));
+      const volumePct = Math.round(volume * 100);
+
+      const displayText = getSanitizedFormValue(formIds.display);
+      const bell = BELLS[getSanitizedFormValue(formIds.bell)];
+      const label = displayText.length > 0 ? displayText : bell.label;
+
+      const minutes = parseInt(getSanitizedFormValue(formIds.period, 0));
+      const periodMs = minutes * ONE_MINUTE_MS;
+      
+      let delayMs = 0;
+      let target = new Date();
+      const startValue = getSanitizedFormValue(formIds.start);
+      if (startValue) {
+        const delay = calculateDelay(startValue);
+        delayMs = delay.delayMs;
+        target = delay.target;
+      }
+      const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
+      const periodLabel = getTimeLabelCb({ minutes, target });
+
+      spawnTimer({
+        id, bell, delayMs, label, nextRing, periodMs, periodLabel, volumePct,
+        oneShot: isOneShot,
+        periodLength: minutes,        
+      });
     }
 
     /** uses form state to inject a new timed bell alarm */
-    function createAlarm() {
-      const timeValue = accessDom('alarm-time').value;
+    function createOneTimeRinger() {
+      const timeValue = getSanitizedFormValue(ALARM_FORM_IDS.start);
       if (!timeValue) return;
 
-      spawnAlarm(
-        BELLS[accessDom('alarm-bell').value],
-        timeValue,
-        parseFloat(accessDom('alarm-volume').value)
-      );
+      return spawnFromForm(ALARM_FORM_IDS, true, calculateOnceLabel);
     }
 
     /** cancels and removes a timer */
@@ -1103,48 +1294,8 @@
 
     // #region create timer / ringer handlers
     const activeTimers = [];
-
-    /** creates a new periodic bell timer */
-    function spawnPeriodic(bell, minutes, delayMs, volume = bell.defaultVolume) {
-      const periodMs = minutes * 60 * 1_000;
-      const id = crypto.randomUUID();
-      const domId = `timer-${id}`;
-      const nextRing = Date.now() + (delayMs > 0 ? delayMs : periodMs);
-      const periodLabel = `every ${ minutes } min`;
-      spawnTimer({
-        id, bell, delayMs, nextRing, periodMs, 
-        label: bell.label,
-        oneShot: false,
-        periodLabel: `every ${ minutes } min`,
-        periodLength: minutes,        
-        volumePct: Math.round(volume * 100),
-      });
-    }
-
-    /** creates a new timed bell alarm */
-    function spawnAlarm(bell, timeStr, volume = bell.defaultVolume) {
-      const [hours, mins] = timeStr.split(':').map(Number);
-      const now = new Date();
-      const target = new Date(now);
-      target.setHours(hours, mins, 0, 0);
-      if (target <= now) target.setDate(target.getDate() + 1);
-      const delayMs = target - now;
-
-      const id = crypto.randomUUID();
-      const domId = `timer-${id}`;
-      const nextRing = Date.now() + delayMs;
-
-      const displayTime = target.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      spawnTimer({
-        id, bell, delayMs, nextRing,
-        label: bell.label,
-        oneShot: true,
-        periodLabel: `at ${ displayTime }`,
-        periodLength: 0,
-        periodMs: 0,
-        volumePct: Math.round(volume * 100),
-      });
-    }
+    const ONE_MINUTE_MS = 60 * 1_000;
+    const ONE_HOUR_MS = ONE_MINUTE_MS * 60;
 
     const BELL_NUM_PROPS = [
       'nextRing',
@@ -1152,6 +1303,7 @@
       'periodMs',
       'volume',
     ]
+
     const BELL_PROPS = [
       'bell',
       'label',
@@ -1162,6 +1314,30 @@
       'periodMs',
       'volume',
     ]
+
+    const BANNED_CHAR = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      '\r': '-',
+      '\t': '-',
+      '\n': '-',
+      '\\': '-',
+    }
+
+    /**
+     * sanitizes a string that might be from sus form input
+     * TODO: consider using where supported @see Sanitizer
+     */
+    function sanitizeStr(rawStr, defaultReturn = '') {
+      if (typeof rawStr !== 'string') return defaultReturn;
+      let str = rawStr
+      Object.keys(BANNED_CHAR).forEach(char => {
+        str = str.split(char).join(BANNED_CHAR[char])
+      })
+      return str
+    }
     
     /**
      * adds a new bell timer to the DOM. options: 
@@ -1172,9 +1348,12 @@
      */
     function spawnTimer(options) {
       const {
-        id, bell, delayMs, label, nextRing, oneShot,
-        periodLength, periodLabel, periodMs, volumePct,
+        id, bell, delayMs, label: rawLabel, nextRing, oneShot,
+        periodLength, periodLabel: rawPeriodLabel, periodMs, volumePct,
       } = options
+
+      const label = sanitizeStr(rawLabel)
+      const periodLabel = sanitizeStr(rawPeriodLabel)
 
       // add to global timers set
       activeTimers.push(options);
@@ -1187,9 +1366,13 @@
       item.innerHTML =
       `<span class="minimizable-text">${ label } ▪ ${ periodLabel } ▪ ${ volumePct }%</span>` +
       `<span id="countdown-${ id }"></span>` +
-      `<button class="stop-btn" onclick="stopTimer('${ id }')"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text close-icon" alt="close icon"></span></button>`;
+      `<button class="stop-btn" onclick="stopTimer('${ id }')"><span class="minimizable-text">DESTROY</span><span class="icon reverse-minimizable-text close-icon" aria-label="close icon"></span></button>`;
       list.appendChild(item);
+      list.scrollIntoView();
+
+      // reset display state
       updateCountdowns();
+      resetFormState();
 
       // add to local storage
       const currentBells = activeTimers.map(t => t.id).join(',');
@@ -1215,11 +1398,36 @@
     //       so they don't have to repeatedly recreate a set of bells
     function setupPreferred() {
       // TODO: support localstorage and fall back to this if no local options found
-      spawnPeriodic(HighBright, 30, getClosestTime(15, 45));
-      spawnPeriodic(MediumBright, 60, msUntilMinute(30));
-      spawnPeriodic(BoldBright, 60, msUntilMinute(59));
-      spawnAlarm(LowGong, '14:00');
-      spawnAlarm(SingingEscalating, '15:00');
+      spawnFromOptions({
+        bell: HighBright,
+        periodLength: 30,
+        delayMs: getClosestTime(15, 45),
+      });
+      spawnFromOptions({
+        bell: MediumBright,
+        periodLength: 60,
+        delayMs: msUntilMinute(30),
+      });
+      spawnFromOptions({
+        bell: BoldBright,
+        periodLength: 60,
+        delayMs: msUntilMinute(59),
+      });
+      spawnFromOptions({
+        bell: LowGong,
+        label: "daily standup in 15 minutes. don't forget to update linear tickets!",
+        periodLength: 60 * 24,
+      }, '13:45');
+      spawnFromOptions({
+        bell: LowGong,
+        label: "daily standup in a minute!!!",
+        periodLength: 60 * 24,
+      }, '13:59');
+      spawnFromOptions({
+        bell: SingingEscalating,
+        label: '🐶🐶🐶🐶🐶🐶🐶 before sunset please',
+        oneShot: true,
+      }, '15:00');
     }
     // #endregion create timer / ringer handlers
 
@@ -1512,7 +1720,7 @@
 
     /** retrieves data from local storage -- as a boolean */
     function getBoolData(field) {
-      return localStorage.getItem(field) === 'true'
+      return getData(field) === 'true'
     }
 
     /** deletes data from local storage */
@@ -1573,27 +1781,21 @@
       const currentTime = new Date().getTime()
       bells.ids.forEach(id => {
         const cachedBell = bells[id]
-        let nextRing = Number(cachedBell.nextRing)
-        const periodLength = Number(cachedBell.periodLength)
+        let nextRing = cachedBell.nextRing
+        const periodLength = cachedBell.periodLength
 
         // skip one off bells that have expired
         if (nextRing < currentTime && periodLength === 0) return
 
         // bump nextRing up for any other expired ring
-        while (nextRing <= currentTime) {
-          const nextRingDate = new Date(nextRing)
-          const nextRingMinutes = nextRingDate.getMinutes()
-          const next = new Date(nextRingDate.setMinutes(nextRingMinutes + periodLength))
-          nextRing = next.getTime()
-        }
-        
+        nextRing = getNextTimerRing(cachedBell)
         const ringDate = new Date(cachedBell.nextRing)
         const displayTime = `${ringDate.getHours()}:${ringDate.getMinutes}`
         spawnTimer({
           id,
           nextRing,
           periodLength,
-          bell: getBellFromLabel(cachedBell.label),
+          bell: getBellFromLabel(cachedBell.bell),
           label: cachedBell.label,
           oneShot: periodLength === 0,
           periodLabel: cachedBell.periodLabel,
@@ -1612,8 +1814,12 @@
     <section>
       <p class="minimizable">Here are some bells to try to help</p>
       <div class="active-timers" id="active-timers" aria-role="timer"></div>
+      <p class="last-timer">
+        <span>Last timer rung:</span>
+        <span id="last-timer-info" class="last-timer">None</span>
+      </p>
     </section>
-    <div class="minimizable" id="bell-info-aria" aria-role="live-polite">
+    <section class="minimizable" id="bell-info-aria" aria-role="live-polite">
       <div class="bell-info-carousel" id="bell-info-carousel" hidden>
         <div class="bell-info-nav">
           <button class="stop-btn" onclick="bellInfoNav(-1)" aria-controls="bell-info-aria">&#8592;</button>
@@ -1622,7 +1828,7 @@
         </div>
         <div class="bell-info-card" id="bell-info-card"></div>
       </div>
-    </div>
+    </section>
     <section id="timer-creator" class="timer-creator minimizable">
       <div id="global-controls">
         <button class="stop-btn" onclick="stopAll()" aria-controls="active-timers">
@@ -1755,7 +1961,7 @@
               title="close create new periodic bell timer panel"
               aria-label="close create new periodic bell timer panel"
               aria-controls="panel-periodic-aria"
-            >❌</button>
+            ><span class="icon close-icon" aria-label="close icon"></span></button>
           </div>
           <div class="timer-field preview" aria-role="live-polite">
             <label for="timer-preview-player">preview</label>
@@ -1766,6 +1972,10 @@
             ></audio>
           </div>
           <div class="timer-form">
+            <div class="timer-field stretchy">
+              <label for="timer-display">display text <span class="optional">(optional, uses bell label if not specified)</span></label>
+              <input id="timer-display" type="text" />
+            </div>
             <div class="timer-field">
               <label for="timer-bell">bell</label>
               <select
@@ -1795,6 +2005,9 @@
                 <option value="45">45 min</option>
                 <option value="60">60 min</option>
                 <option value="90">90 min</option>
+                <option value="1440">2 hours</option>
+                <option value="1440">12 hours (ring twice every day)</option>
+                <option value="1440">24 hours (ring once every day)</option>
               </select>
             </div>
             <div class="timer-field">
@@ -1821,7 +2034,7 @@
             </div>
             <button
               class="create-btn lorge"
-              onclick="createTimer()"
+              onclick="createPeriodicRinger()"
               aria-controls="active-timers"
             >create</button>
           </div>
@@ -1837,7 +2050,7 @@
               title="close create new timed bell timer panel"
               aria-label="close create new timed bell timer panel"
               aria-controls="panel-timed-aria"
-            >❌</button>
+            ><span class="icon close-icon" aria-label="close icon"></span></button>
           </div>
           <div class="timer-field preview" aria-role="live-polite">
             <label for="alarm-preview-player">preview</label>
@@ -1848,6 +2061,10 @@
             ></audio>
           </div>
           <div class="timer-form">
+            <div class="timer-field stretchy">
+              <label for="alarm-display">display text <span class="optional">(optional, uses bell label if not specified)</span></label>
+              <input id="alarm-display" type="text" />
+            </div>
             <div class="timer-field">
               <label for="alarm-bell">bell</label>
               <select
@@ -1887,7 +2104,7 @@
             </div>
             <button
               class="create-btn lorge"
-              onclick="createAlarm()"
+              onclick="createOneTimeRinger()"
               aria-controls="active-timers"
             >create</button>
           </div>
