@@ -165,6 +165,9 @@
         content: "🎓";
         background: var(--education-accent);
       }
+      .like::before {
+        content: "🩵";
+      }
       .position::before {
         content: "💼";
         line-height: 1.8rem;
@@ -348,6 +351,18 @@
         height: 0;
         padding-bottom: 0;
         margin-top: 0;
+      }
+      .no-motion {
+        display: none;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .motion {
+          display: none;
+        }
+
+        .no-motion {
+          display: initial;
+        }
       }
       @media (max-width: 750px) {
         .wrapper {
@@ -554,6 +569,55 @@
               </div>
             </div>
           </details>
+        </figure>
+        <figure class="award like">
+          <figcaption>
+            <ul>
+              <li>Achievement Unlocked</li>
+              <li>May 2026</li>
+            </ul>
+          </figcaption>
+          <h2>Old Codepen Liked By A Cool Person</h2>
+          <p class="padded">
+            I might not have noticed for 6 months, but eventually I logged into codepen and saw that the OG CSS Tricks guy had liked a couple of my old 100 Days Of CSS prompt fills!
+          </p>
+          <div class="wrapper">
+            <div class="wrapper images">
+              <img
+                alt="notification of OG CSS Tricks guy liking my thing 6 months ago 😂"
+                src="../img/sojeri-side-project-100-days-of-css-day-3-the-silliest-thing-to-brag-about.png"
+                width="180"
+                height="90"
+              />
+              <img
+                class="motion"
+                src="../img/sojeri-side-project-100-days-of-css-day-3-obelisk.gif"
+                alt="100 days of CSS, day 3, a full night/day cycle on the obelisk"
+                width="150"
+                height="150"
+              />
+              <img
+                class="no-motion"
+                alt="100 days of CSS, day 3, during midday with a short shadow leading directly away from an obelisk"
+                src="../img/sojeri-side-project-100-days-of-css-day-3-midday.png"
+                width="150"
+                height="150"
+              />
+              <img
+                class="no-motion"
+                alt="100 days of CSS, day 3, at night with no shadow from the obelisk and a starry night sky"
+                src="../img/sojeri-side-project-100-days-of-css-day-3-night.png"
+                width="150"
+                height="150"
+              />
+            </div>
+            <ul class="skills">
+              <li>HTML</li>
+              <li>CSS</li>
+              <li>the tiniest amount of cheater's JavaScript</li>
+              <li class="oops-not-skill"><a href="https://codepen.io/collection/nxzxrx?cursor=eyJwYWdlIjoyfQ==">See some really old CSS 😂</a></li>
+            </ul>
+          </div>
         </figure>
         <figure class="project">
           <figcaption>
